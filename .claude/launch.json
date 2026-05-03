@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "rnporto-graphics (TanStack Start dev)",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "rnporto-graphics", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "rnporto-mobile (Expo / Metro)",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "rnporto-mobile", "start"],
+      "port": 8081
+    },
+    {
+      "name": "rnporto-mobile (Expo web)",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "rnporto-mobile", "web"],
+      "port": 8081
+    }
+  ]
+}

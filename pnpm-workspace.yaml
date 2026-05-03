@@ -1,0 +1,7 @@
+packages:
+  - "rnporto-mobile"
+  - "rnporto-assets"
+  - "rnporto-landing"
+  - "rnporto-graphics"
+
+nodeLinker: hoisted

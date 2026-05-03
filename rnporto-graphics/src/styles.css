@@ -1,0 +1,191 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap");
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: "General Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+/* ── RN Porto · Atómico tokens ────────────────────────────────────────────
+   Ported from /tmp/design/react-native-porto/project/tokens.jsx — slate
+   canvas, single accent, atom motif. The chrome reads these CSS variables
+   so changing the studio's mode/accent reflows it without re-rendering. */
+:root {
+  --rnp-bg: #F4F6F8;
+  --rnp-bg-elevated: #FFFFFF;
+  --rnp-bg-sunken: #EBEEF2;
+  --rnp-fg: #0E141B;
+  --rnp-fg-soft: #4B5563;
+  --rnp-fg-muted: #7C8794;
+  --rnp-line: rgba(14, 20, 27, 0.12);
+  --rnp-line-strong: rgba(14, 20, 27, 0.24);
+  --rnp-accent: #1F4FD6;
+  --rnp-accent-ink: #FFFFFF;
+  --rnp-chip-bg: rgba(255, 255, 255, 0.7);
+  --rnp-chip-line: rgba(14, 20, 27, 0.1);
+  --rnp-shadow-1: 0 1px 2px rgba(20, 16, 12, 0.06);
+  --rnp-shadow-3: 0 18px 50px rgba(20, 16, 12, 0.14), 0 2px 6px rgba(20, 16, 12, 0.06);
+}
+
+:root[data-theme="dark"] {
+  --rnp-bg: #0A0E14;
+  --rnp-bg-elevated: #171D26;
+  --rnp-bg-sunken: #06080C;
+  --rnp-fg: #E7ECF2;
+  --rnp-fg-soft: #9AA5B4;
+  --rnp-fg-muted: #65707E;
+  --rnp-line: rgba(231, 236, 242, 0.14);
+  --rnp-line-strong: rgba(231, 236, 242, 0.28);
+  --rnp-accent: #5E84F2;
+  --rnp-accent-ink: #0A0E14;
+  --rnp-chip-bg: rgba(13, 28, 32, 0.6);
+  --rnp-chip-line: rgba(231, 236, 242, 0.18);
+  --rnp-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --rnp-shadow-3: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--rnp-fg);
+  font-family: var(--font-sans);
+  background-color: var(--rnp-bg);
+  background:
+    radial-gradient(900px 520px at 8% -6%, color-mix(in oklab, var(--rnp-accent) 18%, transparent), transparent 60%),
+    radial-gradient(700px 480px at 110% 6%, color-mix(in oklab, var(--rnp-accent) 10%, transparent), transparent 65%),
+    var(--rnp-bg);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.18;
+  background-image:
+    linear-gradient(var(--rnp-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--rnp-line) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(circle at 50% 20%, black, transparent 78%);
+}
+
+a {
+  color: var(--rnp-accent);
+  text-decoration-color: color-mix(in oklab, var(--rnp-accent) 50%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  color: color-mix(in oklab, var(--rnp-accent) 80%, var(--rnp-fg));
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  border: 1px solid var(--rnp-line);
+  background: var(--rnp-bg-elevated);
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+.page-wrap {
+  width: min(1180px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.display-title {
+  font-family: var(--font-sans);
+  letter-spacing: -0.025em;
+}
+
+.island-shell {
+  border: 1px solid var(--rnp-line);
+  background: var(--rnp-bg-elevated);
+  box-shadow: var(--rnp-shadow-1);
+}
+
+button,
+.island-shell,
+a {
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.island-kicker {
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.66rem;
+  color: var(--rnp-accent);
+  font-family: var(--font-mono);
+}
+
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--rnp-fg-soft);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 100%;
+  height: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: var(--rnp-accent);
+  transition: transform 170ms ease;
+}
+
+.nav-link:hover,
+.nav-link.is-active {
+  color: var(--rnp-fg);
+}
+
+.nav-link:hover::after,
+.nav-link.is-active::after {
+  transform: scaleX(1);
+}
+
+.site-footer {
+  border-top: 1px solid var(--rnp-line);
+  background: var(--rnp-bg-elevated);
+}
+
+.rise-in {
+  animation: rise-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
