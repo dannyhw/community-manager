@@ -188,37 +188,27 @@ function GraphicsStudio() {
                 Exports at full {template.width}×{template.height}. Mode: {mode}.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex rounded-full border border-[var(--rnp-line)] bg-[var(--rnp-chip-bg)] p-1 text-xs font-semibold">
-                {(['live', 'export'] as const).map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => setPreviewMode(m)}
-                    className={
-                      'rounded-full px-3 py-1 capitalize transition ' +
-                      (previewMode === m
-                        ? 'bg-[var(--rnp-accent)] text-[var(--rnp-accent-ink)]'
-                        : 'text-[var(--rnp-fg)]')
-                    }
-                    title={
-                      m === 'live'
-                        ? 'Show the live DOM render'
-                        : 'Show the rasterised PNG (matches the download exactly)'
-                    }
-                  >
-                    {m === 'live' ? 'Live' : 'Export preview'}
-                  </button>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={handleExport}
-                disabled={exporting}
-                className="rounded-md border border-[var(--rnp-accent)] bg-[var(--rnp-accent)] px-5 py-2 text-sm font-semibold uppercase tracking-[0.16em] text-[var(--rnp-accent-ink)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {exporting ? 'Rendering…' : 'Download PNG'}
-              </button>
+            <div className="inline-flex rounded-full border border-[var(--rnp-line)] bg-[var(--rnp-chip-bg)] p-1 text-xs font-semibold">
+              {(['live', 'export'] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setPreviewMode(m)}
+                  className={
+                    'rounded-full px-3 py-1 capitalize transition ' +
+                    (previewMode === m
+                      ? 'bg-[var(--rnp-accent)] text-[var(--rnp-accent-ink)]'
+                      : 'text-[var(--rnp-fg)]')
+                  }
+                  title={
+                    m === 'live'
+                      ? 'Show the live DOM render'
+                      : 'Show the rasterised PNG (matches the download exactly)'
+                  }
+                >
+                  {m === 'live' ? 'Live' : 'Export preview'}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -269,6 +259,17 @@ function GraphicsStudio() {
               {exportError}
             </p>
           ) : null}
+
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={exporting}
+              className="rounded-md border border-[var(--rnp-accent)] bg-[var(--rnp-accent)] px-5 py-2 text-sm font-semibold uppercase tracking-[0.16em] text-[var(--rnp-accent-ink)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {exporting ? 'Rendering…' : 'Download PNG'}
+            </button>
+          </div>
         </div>
       </section>
     </main>
