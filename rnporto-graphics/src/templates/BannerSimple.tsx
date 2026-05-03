@@ -36,7 +36,12 @@ function BannerSimple({ values, t }: { values: TemplateValues; t: ThemeTokens })
           >
             Edition
           </div>
-          <div style={{ fontFamily: t.fonts.mono, fontSize: 240, fontWeight: 700, letterSpacing: '-0.08em', lineHeight: 0.85 }}>
+          <div
+            style={{
+              fontFamily: t.fonts.mono, fontSize: 240, fontWeight: 700,
+              letterSpacing: '-0.08em', lineHeight: 0.85, whiteSpace: 'nowrap',
+            }}
+          >
             {values.editionMark}
           </div>
         </div>

@@ -112,6 +112,7 @@ function BannerWide({ values, t }: { values: TemplateValues; t: ThemeTokens }) {
             style={{
               position: 'relative', fontFamily: t.fonts.mono, fontSize: 440, fontWeight: 700,
               color: t.accentInk, letterSpacing: '-0.08em', lineHeight: 0.78,
+              whiteSpace: 'nowrap',
             }}
           >
             {values.editionMark}

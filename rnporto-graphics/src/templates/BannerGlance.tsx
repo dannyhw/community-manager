@@ -85,6 +85,7 @@ function BannerGlance({ values, t }: { values: TemplateValues; t: ThemeTokens })
             style={{
               gridArea: '1/1', fontFamily: t.fonts.mono, fontSize: 240, fontWeight: 700,
               color: t.accentInk, letterSpacing: '-0.08em', lineHeight: 1,
+              whiteSpace: 'nowrap',
             }}
           >
             {values.editionMark}
