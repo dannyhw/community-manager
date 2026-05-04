@@ -3,5 +3,10 @@ packages:
   - "rnporto-assets"
   - "rnporto-landing"
   - "rnporto-graphics"
+allowBuilds:
+  esbuild: true
 
 nodeLinker: hoisted
+
+onlyBuiltDependencies:
+  - esbuild
