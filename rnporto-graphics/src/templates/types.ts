@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react'
 import type { ThemeTokens } from '../system/tokens'
 
-export type FieldType = 'text' | 'textarea' | 'select'
+export type FieldType = 'text' | 'textarea' | 'select' | 'image'
 
 export interface TemplateField {
   key: string

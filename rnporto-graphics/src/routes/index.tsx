@@ -14,6 +14,14 @@ export const Route = createFileRoute('/')({ component: GraphicsStudio })
 const DEFAULT_MODE: ThemeMode = 'light'
 const DEFAULT_ACCENT = '#2B6CA8' // tile
 
+// Templates that share the same draft — edits to one mirror to the others.
+// Used so the same speaker photo / talk title / meta carries between the
+// square and portrait speaker variants without re-uploading.
+const LINKED_IDS: Record<string, Array<string>> = {
+  'banner-speaker-square': ['banner-speaker-portrait'],
+  'banner-speaker-portrait': ['banner-speaker-square'],
+}
+
 type PreviewMode = 'live' | 'export'
 
 // Shared between the in-UI preview and the download — guarantees the rasterised
@@ -97,19 +105,31 @@ function GraphicsStudio() {
 
   const updateField = useCallback(
     (key: string, value: string) => {
-      setValuesById((prev) => ({
-        ...prev,
-        [activeId]: { ...prev[activeId], [key]: value },
-      }))
+      setValuesById((prev) => {
+        const next = {
+          ...prev,
+          [activeId]: { ...prev[activeId], [key]: value },
+        }
+        for (const linkedId of LINKED_IDS[activeId] ?? []) {
+          next[linkedId] = { ...prev[linkedId], [key]: value }
+        }
+        return next
+      })
     },
     [activeId],
   )
 
   const resetTemplate = useCallback(() => {
-    setValuesById((prev) => ({
-      ...prev,
-      [activeId]: { ...templatesById[activeId].defaults },
-    }))
+    setValuesById((prev) => {
+      const next = {
+        ...prev,
+        [activeId]: { ...templatesById[activeId].defaults },
+      }
+      for (const linkedId of LINKED_IDS[activeId] ?? []) {
+        next[linkedId] = { ...templatesById[linkedId].defaults }
+      }
+      return next
+    })
   }, [activeId])
 
   const resetTheme = useCallback(() => {

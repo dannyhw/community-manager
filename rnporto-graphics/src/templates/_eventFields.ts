@@ -95,6 +95,41 @@ export const eventFields = {
     type: 'text',
     placeholder: 'RNP 002 · 11 06 26',
   } satisfies TemplateField,
+  speakerImage: {
+    key: 'speakerImage',
+    label: 'Speaker photo',
+    type: 'image',
+  } satisfies TemplateField,
+  speakerImageCrop: {
+    key: 'speakerImageCrop',
+    label: 'Photo crop',
+    type: 'select',
+    options: [
+      { value: 'center 0%', label: 'Top' },
+      { value: 'center 20%', label: 'Face (top bias)' },
+      { value: 'center 50%', label: 'Center' },
+      { value: 'center 80%', label: 'Lower' },
+      { value: 'center 100%', label: 'Bottom' },
+    ],
+  } satisfies TemplateField,
+  speakerName: {
+    key: 'speakerName',
+    label: 'Speaker name',
+    type: 'text',
+    placeholder: 'Joana Almeida',
+  } satisfies TemplateField,
+  speakerRole: {
+    key: 'speakerRole',
+    label: 'Speaker role',
+    type: 'text',
+    placeholder: 'Staff Engineer · Reanimated',
+  } satisfies TemplateField,
+  talkTitle: {
+    key: 'talkTitle',
+    label: 'Talk title (Enter for manual line break)',
+    type: 'textarea',
+    placeholder: 'Reanimated 4 in production',
+  } satisfies TemplateField,
 }
 
 export const eventDefaults: TemplateValues = {
@@ -114,6 +149,11 @@ export const eventDefaults: TemplateValues = {
   hostLine1: 'Porto Innovation',
   hostLine2: 'Hub',
   barcodeCaption: 'RNP 002 · 11 06 26',
+  speakerImage: '',
+  speakerImageCrop: 'center 20%',
+  speakerName: 'Joana Almeida',
+  speakerRole: 'Staff Engineer · Reanimated',
+  talkTitle: 'Reanimated 4 in production',
 }
 
 // Deterministic barcode strip — same seed as the original banner.jsx so the
