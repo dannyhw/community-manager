@@ -9,9 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
+import { Route as ApiGalleryIdThumbRouteImport } from './routes/api/gallery/$id/thumb'
+import { Route as ApiGalleryIdAssetKeyRouteImport } from './routes/api/gallery/$id/asset/$key'
 
+const GalleryRoute = GalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -22,35 +30,80 @@ const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
   path: '/demo/tanstack-query',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGalleryIdThumbRoute = ApiGalleryIdThumbRouteImport.update({
+  id: '/api/gallery/$id/thumb',
+  path: '/api/gallery/$id/thumb',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGalleryIdAssetKeyRoute = ApiGalleryIdAssetKeyRouteImport.update({
+  id: '/api/gallery/$id/asset/$key',
+  path: '/api/gallery/$id/asset/$key',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/gallery': typeof GalleryRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/api/gallery/$id/thumb': typeof ApiGalleryIdThumbRoute
+  '/api/gallery/$id/asset/$key': typeof ApiGalleryIdAssetKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/gallery': typeof GalleryRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/api/gallery/$id/thumb': typeof ApiGalleryIdThumbRoute
+  '/api/gallery/$id/asset/$key': typeof ApiGalleryIdAssetKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/gallery': typeof GalleryRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/api/gallery/$id/thumb': typeof ApiGalleryIdThumbRoute
+  '/api/gallery/$id/asset/$key': typeof ApiGalleryIdAssetKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/demo/tanstack-query'
+  fullPaths:
+    | '/'
+    | '/gallery'
+    | '/demo/tanstack-query'
+    | '/api/gallery/$id/thumb'
+    | '/api/gallery/$id/asset/$key'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/demo/tanstack-query'
-  id: '__root__' | '/' | '/demo/tanstack-query'
+  to:
+    | '/'
+    | '/gallery'
+    | '/demo/tanstack-query'
+    | '/api/gallery/$id/thumb'
+    | '/api/gallery/$id/asset/$key'
+  id:
+    | '__root__'
+    | '/'
+    | '/gallery'
+    | '/demo/tanstack-query'
+    | '/api/gallery/$id/thumb'
+    | '/api/gallery/$id/asset/$key'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  GalleryRoute: typeof GalleryRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
+  ApiGalleryIdThumbRoute: typeof ApiGalleryIdThumbRoute
+  ApiGalleryIdAssetKeyRoute: typeof ApiGalleryIdAssetKeyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -65,12 +118,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoTanstackQueryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/gallery/$id/thumb': {
+      id: '/api/gallery/$id/thumb'
+      path: '/api/gallery/$id/thumb'
+      fullPath: '/api/gallery/$id/thumb'
+      preLoaderRoute: typeof ApiGalleryIdThumbRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/gallery/$id/asset/$key': {
+      id: '/api/gallery/$id/asset/$key'
+      path: '/api/gallery/$id/asset/$key'
+      fullPath: '/api/gallery/$id/asset/$key'
+      preLoaderRoute: typeof ApiGalleryIdAssetKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  GalleryRoute: GalleryRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
+  ApiGalleryIdThumbRoute: ApiGalleryIdThumbRoute,
+  ApiGalleryIdAssetKeyRoute: ApiGalleryIdAssetKeyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

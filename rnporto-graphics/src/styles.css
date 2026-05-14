@@ -104,6 +104,16 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Sticky footer: lay out body as a vertical flex column so a short
+     <main> can grow to fill the viewport. Without this, pages with little
+     content (e.g. an empty gallery) leave the footer floating mid-screen. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+body > main {
+  flex: 1 1 auto;
 }
 
 body::after {

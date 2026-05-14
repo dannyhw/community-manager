@@ -23,8 +23,16 @@ export default function Header() {
             to="/"
             className="nav-link"
             activeProps={{ className: 'nav-link is-active' }}
+            activeOptions={{ exact: true, includeSearch: false }}
           >
             Studio
+          </Link>
+          <Link
+            to="/gallery"
+            className="nav-link"
+            activeProps={{ className: 'nav-link is-active' }}
+          >
+            Gallery
           </Link>
         </div>
 

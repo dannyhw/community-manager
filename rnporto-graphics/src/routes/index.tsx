@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toPng } from 'html-to-image'
 import GraphicCanvas from '../components/GraphicCanvas'
@@ -8,8 +8,29 @@ import ThemeControls from '../components/ThemeControls'
 import { resolveTheme, type ThemeMode } from '../system/tokens'
 import { templates, templatesById } from '../templates'
 import type { TemplateValues } from '../templates/types'
+import { getGraphic, saveGraphic } from '../server/gallery'
 
-export const Route = createFileRoute('/')({ component: GraphicsStudio })
+interface StudioSearch {
+  /** When present, the studio fetches that gallery entry and restores its state. */
+  load?: string
+}
+
+export const Route = createFileRoute('/')({
+  component: GraphicsStudio,
+  validateSearch: (search: Record<string, unknown>): StudioSearch => ({
+    load: typeof search.load === 'string' ? search.load : undefined,
+  }),
+  loaderDeps: ({ search }) => ({ load: search.load }),
+  loader: async ({ deps }) => {
+    if (!deps.load) return { loaded: null }
+    try {
+      const entry = await getGraphic({ data: { id: deps.load } })
+      return { loaded: entry }
+    } catch {
+      return { loaded: null }
+    }
+  },
+})
 
 const DEFAULT_MODE: ThemeMode = 'light'
 const DEFAULT_ACCENT = '#2B6CA8' // tile
@@ -39,19 +60,82 @@ function rasterise(node: HTMLElement, width: number, height: number) {
   })
 }
 
+// Downscaled thumbnail used by the gallery cards. We render the source DOM
+// at its native dimensions but ask `html-to-image` to size the output
+// canvas to ~480px on the long edge — cheap on disk and quick to ship over
+// the wire while still legible at card size.
+const THUMB_LONG_EDGE = 480
+function rasteriseThumb(node: HTMLElement, width: number, height: number) {
+  const scale = Math.min(1, THUMB_LONG_EDGE / Math.max(width, height))
+  const outW = Math.round(width * scale)
+  const outH = Math.round(height * scale)
+  return toPng(node, {
+    cacheBust: true,
+    pixelRatio: 1,
+    width,
+    height,
+    canvasWidth: outW,
+    canvasHeight: outH,
+    style: { transform: 'scale(1)', transformOrigin: 'top left' },
+  })
+}
+
 function GraphicsStudio() {
-  const [activeId, setActiveId] = useState(templates[0].id)
-  const [mode, setMode] = useState<ThemeMode>(DEFAULT_MODE)
-  const [accent, setAccent] = useState(DEFAULT_ACCENT)
+  const navigate = useNavigate()
+  const { loaded } = Route.useLoaderData()
+  // When the loader returned an entry (?load=<id>), seed initial state from
+  // it. We only honour the loaded entry on first mount; subsequent edits in
+  // the studio shouldn't be clobbered if the URL stays the same.
+  const [activeId, setActiveId] = useState(loaded?.templateId ?? templates[0].id)
+  const [mode, setMode] = useState<ThemeMode>(loaded?.mode ?? DEFAULT_MODE)
+  const [accent, setAccent] = useState(loaded?.accent ?? DEFAULT_ACCENT)
   const [valuesById, setValuesById] = useState<Record<string, TemplateValues>>(
-    () => Object.fromEntries(templates.map((t) => [t.id, { ...t.defaults }])),
+    () => {
+      const seeded: Record<string, TemplateValues> = Object.fromEntries(
+        templates.map((t) => [t.id, { ...t.defaults }]),
+      )
+      if (loaded && seeded[loaded.templateId]) {
+        seeded[loaded.templateId] = { ...seeded[loaded.templateId], ...loaded.values }
+      }
+      return seeded
+    },
   )
+  // Track which gallery entry (if any) the current state is associated with —
+  // lets the Save button offer "Save changes" vs "Save as new" without
+  // re-prompting for the name on every edit. We also track the template id
+  // the bound entry was saved against: switching to a different template
+  // means the in-memory values no longer belong to that entry, and the
+  // overwrite affordance should disappear until the user switches back.
+  const [galleryEntryId, setGalleryEntryId] = useState<string | null>(
+    loaded?.id ?? null,
+  )
+  const [galleryEntryName, setGalleryEntryName] = useState<string | null>(
+    loaded?.name ?? null,
+  )
+  const [galleryEntryTemplateId, setGalleryEntryTemplateId] = useState<
+    string | null
+  >(loaded?.templateId ?? null)
+  // True when the active template still matches the loaded entry — only
+  // then is "Save changes" semantically correct.
+  const boundToEntry =
+    galleryEntryId !== null && galleryEntryTemplateId === activeId
   const [exporting, setExporting] = useState(false)
   const [exportError, setExportError] = useState<string | null>(null)
   const [previewMode, setPreviewMode] = useState<PreviewMode>('live')
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [previewing, setPreviewing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saveToast, setSaveToast] = useState<string | null>(null)
+  // `null` → buttons; `{ mode }` → inline name form is open. Tracking the
+  // intent ("new" vs "overwrite") lets a single form handle both flows
+  // without re-rendering the buttons.
+  const [savePromptIntent, setSavePromptIntent] = useState<
+    null | { mode: 'new' | 'overwrite' }
+  >(null)
+  const [saveNameInput, setSaveNameInput] = useState('')
   const canvasRef = useRef<HTMLDivElement | null>(null)
+  const saveNameRef = useRef<HTMLInputElement | null>(null)
 
   const template = templatesById[activeId]
   const values = valuesById[activeId]
@@ -173,6 +257,95 @@ function GraphicsStudio() {
     }
   }, [template, slug])
 
+  // Open the inline save form. Pre-fills the name field: when overwriting,
+  // reuse the existing entry's name; otherwise seed from the template name
+  // + the export-filename slug so the user usually only has to hit Enter.
+  const openSavePrompt = useCallback(
+    (mode: 'new' | 'overwrite') => {
+      const fallbackName = `${template.name} · ${slug}`
+      const seed =
+        mode === 'overwrite' && galleryEntryName ? galleryEntryName : fallbackName
+      setSaveNameInput(seed)
+      setSaveError(null)
+      setSaveToast(null)
+      setSavePromptIntent({ mode })
+      // Focus + select on next tick so the user can either accept or type
+      // a replacement immediately.
+      window.setTimeout(() => {
+        saveNameRef.current?.focus()
+        saveNameRef.current?.select()
+      }, 0)
+    },
+    [template.name, slug, galleryEntryName],
+  )
+
+  const cancelSavePrompt = useCallback(() => {
+    setSavePromptIntent(null)
+    setSaveNameInput('')
+  }, [])
+
+  // Commit the save. We always re-rasterise the thumbnail at save time so
+  // the gallery card reflects the latest state, not the state at load time.
+  const confirmSave = useCallback(async () => {
+    if (!savePromptIntent) return
+    const node = canvasRef.current
+    if (!node) return
+    const overwrite = savePromptIntent.mode === 'overwrite'
+    const fallbackName = `${template.name} · ${slug}`
+    const name = saveNameInput.trim() || fallbackName
+    setSaving(true)
+    setSaveError(null)
+    try {
+      const thumbDataUrl = await rasteriseThumb(node, template.width, template.height)
+      const entry = await saveGraphic({
+        data: {
+          id: overwrite ? galleryEntryId ?? undefined : undefined,
+          templateId: template.id,
+          name,
+          values,
+          mode,
+          accent,
+          width: template.width,
+          height: template.height,
+          thumbDataUrl,
+        },
+      })
+      setGalleryEntryId(entry.id)
+      setGalleryEntryName(entry.name)
+      setGalleryEntryTemplateId(entry.templateId)
+      // The server peels base64 uploads out of `values` into asset
+      // files and rewrites those keys to URLs. Mirror that back into
+      // local state so the in-memory representation matches what's on
+      // disk (and subsequent saves don't keep re-uploading the same
+      // blob). The template renders both `data:` URLs and same-origin
+      // URLs through the same `<img src>`, so the swap is invisible.
+      setValuesById((prev) => ({
+        ...prev,
+        [template.id]: { ...prev[template.id], ...entry.values },
+      }))
+      setSavePromptIntent(null)
+      setSaveNameInput('')
+      setSaveToast(overwrite ? `Saved changes to “${entry.name}”.` : `Saved “${entry.name}” to gallery.`)
+      window.setTimeout(() => setSaveToast(null), 3500)
+      // Keep the URL in sync so reload / share preserves the loaded entry.
+      navigate({ to: '/', search: { load: entry.id }, replace: true })
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Save failed')
+    } finally {
+      setSaving(false)
+    }
+  }, [
+    savePromptIntent,
+    saveNameInput,
+    template,
+    slug,
+    values,
+    mode,
+    accent,
+    galleryEntryId,
+    navigate,
+  ])
+
   return (
     <main className="page-wrap px-4 pb-12 pt-10">
       <section className="flex flex-col gap-3">
@@ -280,17 +453,100 @@ function GraphicsStudio() {
               {exportError}
             </p>
           ) : null}
+          {saveError ? (
+            <p className="m-0 rounded-md border border-red-300/40 bg-red-100/40 p-3 text-sm text-red-800 dark:bg-red-900/20 dark:text-red-200">
+              {saveError}
+            </p>
+          ) : null}
+          {saveToast ? (
+            <p className="m-0 rounded-md border border-[var(--rnp-line)] bg-[var(--rnp-chip-bg)] p-3 text-xs font-mono uppercase tracking-[0.16em] text-[var(--rnp-fg-soft)]">
+              {saveToast}
+            </p>
+          ) : null}
 
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={handleExport}
-              disabled={exporting}
-              className="rounded-md border border-[var(--rnp-accent)] bg-[var(--rnp-accent)] px-5 py-2 text-sm font-semibold uppercase tracking-[0.16em] text-[var(--rnp-accent-ink)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+          {savePromptIntent ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                void confirmSave()
+              }}
+              className="flex flex-wrap items-end gap-2 rounded-md border border-[var(--rnp-line)] bg-[var(--rnp-chip-bg)] p-3"
             >
-              {exporting ? 'Rendering…' : 'Download PNG'}
-            </button>
-          </div>
+              <label className="flex min-w-0 flex-1 flex-col gap-1">
+                <span className="island-kicker">
+                  {savePromptIntent.mode === 'overwrite'
+                    ? 'Save changes as'
+                    : 'Save to gallery — name'}
+                </span>
+                <input
+                  ref={saveNameRef}
+                  type="text"
+                  value={saveNameInput}
+                  onChange={(e) => setSaveNameInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      e.preventDefault()
+                      cancelSavePrompt()
+                    }
+                  }}
+                  disabled={saving}
+                  placeholder={`${template.name} · ${slug}`}
+                  className="w-full rounded-md border border-[var(--rnp-line)] bg-[var(--rnp-bg)] px-3 py-2 text-sm text-[var(--rnp-fg)] outline-none focus:border-[var(--rnp-accent)]"
+                />
+              </label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={cancelSavePrompt}
+                  disabled={saving}
+                  className="rounded-md border border-[var(--rnp-line)] bg-transparent px-3 py-2 text-sm font-semibold uppercase tracking-[0.16em] text-[var(--rnp-fg-soft)] transition hover:text-[var(--rnp-fg)] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  style={{ color: 'var(--rnp-accent-ink)' }}
+                  className="rounded-md border border-[var(--rnp-accent)] bg-[var(--rnp-accent)] px-4 py-2 text-sm font-semibold uppercase tracking-[0.16em] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {saving
+                    ? 'Saving…'
+                    : savePromptIntent.mode === 'overwrite'
+                      ? 'Save changes'
+                      : 'Save'}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {boundToEntry ? (
+                <button
+                  type="button"
+                  onClick={() => openSavePrompt('overwrite')}
+                  className="rounded-md border border-[var(--rnp-line)] bg-transparent px-4 py-2 text-sm font-semibold uppercase tracking-[0.16em] text-[var(--rnp-fg)] transition hover:bg-[var(--rnp-chip-bg)]"
+                  title={`Overwrite "${galleryEntryName ?? galleryEntryId}"`}
+                >
+                  Save changes
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => openSavePrompt('new')}
+                className="rounded-md border border-[var(--rnp-line)] bg-[var(--rnp-chip-bg)] px-4 py-2 text-sm font-semibold uppercase tracking-[0.16em] text-[var(--rnp-fg)] transition hover:-translate-y-0.5"
+              >
+                {boundToEntry ? 'Save as new' : 'Save to gallery'}
+              </button>
+              <button
+                type="button"
+                onClick={handleExport}
+                disabled={exporting}
+                style={{ color: 'var(--rnp-accent-ink)' }}
+                className="rounded-md border border-[var(--rnp-accent)] bg-[var(--rnp-accent)] px-5 py-2 text-sm font-semibold uppercase tracking-[0.16em] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {exporting ? 'Rendering…' : 'Download PNG'}
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </main>
