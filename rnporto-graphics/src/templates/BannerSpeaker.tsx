@@ -1,10 +1,10 @@
-import { BannerHalftone } from '../system/Halftone'
-import { MotifAtom } from '../system/MotifAtom'
-import type { ThemeTokens } from '../system/tokens'
-import { eventDefaults, eventFields } from './_eventFields'
-import type { GraphicTemplate, TemplateValues } from './types'
+import { BannerHalftone } from "../system/Halftone";
+import { MotifAtom } from "../system/MotifAtom";
+import type { ThemeTokens } from "../system/tokens";
+import { eventDefaults, eventFields } from "./_eventFields";
+import type { GraphicTemplate, TemplateValues } from "./types";
 
-type Variant = 'square' | 'portrait'
+type Variant = "square" | "portrait" | "landscape";
 
 function SpeakerPhoto({
   src,
@@ -13,21 +13,21 @@ function SpeakerPhoto({
   height,
   t,
 }: {
-  src: string
-  crop: string
-  width: number
-  height: number
-  t: ThemeTokens
+  src: string;
+  crop: string;
+  width: number;
+  height: number;
+  t: ThemeTokens;
 }) {
   return (
     <div
       style={{
-        position: 'relative',
+        position: "relative",
         width,
         height,
         background: t.accent,
         color: t.accentInk,
-        overflow: 'hidden',
+        overflow: "hidden",
       }}
     >
       <BannerHalftone
@@ -44,32 +44,36 @@ function SpeakerPhoto({
           src={src}
           alt=""
           style={{
-            position: 'absolute',
+            position: "absolute",
             inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: crop || 'center 20%',
-            display: 'block',
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: crop || "center 20%",
+            display: "block",
           }}
         />
       ) : (
         <div
           style={{
-            position: 'absolute',
+            position: "absolute",
             inset: 0,
-            display: 'grid',
-            placeItems: 'center',
-            pointerEvents: 'none',
+            display: "grid",
+            placeItems: "center",
+            pointerEvents: "none",
           }}
         >
           <div style={{ opacity: 0.35 }}>
-            <MotifAtom color={t.accentInk} size={Math.min(width, height) * 0.55} strokeWidth={1.2} />
+            <MotifAtom
+              color={t.accentInk}
+              size={Math.min(width, height) * 0.55}
+              strokeWidth={1.2}
+            />
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }
 
 function BannerSpeaker({
@@ -77,101 +81,146 @@ function BannerSpeaker({
   t,
   variant,
 }: {
-  values: TemplateValues
-  t: ThemeTokens
-  variant: Variant
+  values: TemplateValues;
+  t: ThemeTokens;
+  variant: Variant;
 }) {
-  const isSquare = variant === 'square'
-  const width = 1080
-  const height = isSquare ? 1080 : 1350
-  // Portrait gets a shorter photo so the extra height actually goes to text
-  // breathing room (otherwise the larger title fonts crowd the speaker block).
-  const photoHeight = isSquare ? 520 : 640
+  const isLandscape = variant === "landscape";
+  const isSquare = variant === "square";
+  const isPortrait = variant === "portrait";
+  // Landscape places photo and content side-by-side; the others stack them.
+  const layout: "split" | "stacked" = isLandscape ? "split" : "stacked";
+
+  let width: number;
+  let height: number;
+  let photoWidth: number;
+  let photoHeight: number;
+  let baseTitle: number;
+  let nameSize: number;
+  let contentPadding: string;
+
+  if (isLandscape) {
+    width = 1280;
+    height = 720;
+    photoWidth = 480;
+    photoHeight = 720;
+    baseTitle = 84;
+    nameSize = 50;
+    contentPadding = "52px 56px 52px 60px";
+  } else if (isPortrait) {
+    width = 1080;
+    height = 1350;
+    photoWidth = 1080;
+    photoHeight = 640;
+    baseTitle = 104;
+    nameSize = 60;
+    contentPadding = "40px 56px 44px";
+  } else {
+    width = 1080;
+    height = 1080;
+    photoWidth = 1080;
+    photoHeight = 520;
+    baseTitle = 88;
+    nameSize = 52;
+    contentPadding = "32px 48px 36px";
+  }
+
   // Auto-shrink the talk title so long ones still fit. Titles up to ~32
   // chars stay at hero size and let `text-wrap: balance` handle any wrapping;
   // longer titles step down so 3-4 line layouts still leave a clear gap
   // between the title and the speaker + meta block.
-  const titleChars = (values.talkTitle ?? '').length
+  const titleChars = (values.talkTitle ?? "").length;
   const titleScale =
-    titleChars > 70 ? 0.58
-      : titleChars > 50 ? 0.74
-      : titleChars > 42 ? 0.86
-      : titleChars > 32 ? 0.94
-      : 1
-  const titleSize = Math.round((isSquare ? 88 : 104) * titleScale)
-  const titleLineHeight = titleScale < 1 ? 1 : 0.95
-  const nameSize = isSquare ? 52 : 60
+    titleChars > 70
+      ? 0.58
+      : titleChars > 50
+        ? 0.78
+        : titleChars > 42
+          ? 0.86
+          : titleChars > 32
+            ? 0.94
+            : 1;
+  const titleSize = Math.round(baseTitle * titleScale);
+  const titleLineHeight = titleScale < 1 ? 1 : 0.95;
 
   return (
     <div
       style={{
         width,
         height,
-        position: 'relative',
-        overflow: 'hidden',
+        position: "relative",
+        overflow: "hidden",
         background: t.bg.canvas,
         color: t.fg.primary,
         fontFamily: t.fonts.sans,
-        display: 'flex',
-        flexDirection: 'column',
+        display: "flex",
+        flexDirection: layout === "split" ? "row" : "column",
       }}
     >
-      <div style={{ position: 'relative' }}>
+      <div
+        style={{
+          position: "relative",
+          width: photoWidth,
+          height: photoHeight,
+          flex: "none",
+        }}
+      >
         <SpeakerPhoto
           src={values.speakerImage}
           crop={values.speakerImageCrop}
-          width={width}
+          width={photoWidth}
           height={photoHeight}
           t={t}
         />
 
         <div
           style={{
-            position: 'absolute',
-            top: 32,
+            position: "absolute",
+            bottom: 32,
             left: 44,
+            zIndex: 2,
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+            padding: "12px 22px",
+            background: t.accent,
+            color: t.accentInk,
+            borderRadius: 999,
+          }}
+        >
+          <MotifAtom color={t.accentInk} size={30} strokeWidth={1.6} />
+          <span
+            style={{
+              fontFamily: t.fonts.mono,
+              fontSize: 22,
+              fontWeight: 600,
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+            }}
+          >
+            {values.brand}
+          </span>
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            top: 32,
             right: 44,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
             zIndex: 2,
           }}
         >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              padding: '8px 14px',
-              background: t.accent,
-              color: t.accentInk,
-              borderRadius: 999,
-            }}
-          >
-            <MotifAtom color={t.accentInk} size={22} strokeWidth={1.5} />
-            <span
-              style={{
-                fontFamily: t.fonts.mono,
-                fontSize: 14,
-                fontWeight: 600,
-                letterSpacing: '0.16em',
-                textTransform: 'uppercase',
-              }}
-            >
-              {values.brand}
-            </span>
-          </div>
           <span
             style={{
               fontFamily: t.fonts.mono,
               fontSize: 14,
               fontWeight: 600,
-              letterSpacing: '0.16em',
+              letterSpacing: "0.16em",
               color: t.accentInk,
-              background: 'rgba(0,0,0,0.32)',
-              padding: '8px 14px',
+              background: "rgba(0,0,0,0.32)",
+              padding: "8px 14px",
               borderRadius: 999,
-              whiteSpace: 'nowrap',
+              whiteSpace: "nowrap",
             }}
           >
             {values.editionTag}
@@ -182,12 +231,13 @@ function BannerSpeaker({
       <div
         style={{
           flex: 1,
-          padding: isSquare ? '32px 48px 36px' : '40px 56px 44px',
-          display: 'flex',
-          flexDirection: 'column',
+          padding: contentPadding,
+          display: "flex",
+          flexDirection: "column",
           gap: 20,
-          boxSizing: 'border-box',
+          boxSizing: "border-box",
           minHeight: 0,
+          minWidth: 0,
         }}
       >
         <div>
@@ -196,9 +246,9 @@ function BannerSpeaker({
               fontFamily: t.fonts.mono,
               fontSize: 16,
               fontWeight: 600,
-              letterSpacing: '0.22em',
+              letterSpacing: "0.22em",
               color: t.fg.tertiary,
-              textTransform: 'uppercase',
+              textTransform: "uppercase",
             }}
           >
             The talk
@@ -209,25 +259,25 @@ function BannerSpeaker({
               fontWeight: 700,
               lineHeight: titleLineHeight,
               color: t.fg.primary,
-              letterSpacing: '-0.035em',
+              letterSpacing: "-0.035em",
               marginTop: 12,
-              textWrap: 'balance',
-              whiteSpace: 'pre-line',
+              textWrap: "balance",
+              whiteSpace: "pre-line",
             }}
           >
             {values.talkTitle}
           </div>
         </div>
 
-        <div style={{ marginTop: 'auto' }}>
+        <div style={{ marginTop: "auto" }}>
           <div
             style={{
               fontFamily: t.fonts.mono,
               fontSize: 16,
               fontWeight: 600,
-              letterSpacing: '0.22em',
+              letterSpacing: "0.22em",
               color: t.accent,
-              textTransform: 'uppercase',
+              textTransform: "uppercase",
             }}
           >
             The speaker
@@ -238,7 +288,7 @@ function BannerSpeaker({
               fontWeight: 700,
               lineHeight: 1.02,
               color: t.accent,
-              letterSpacing: '-0.025em',
+              letterSpacing: "-0.025em",
               marginTop: 10,
             }}
           >
@@ -251,7 +301,7 @@ function BannerSpeaker({
               fontWeight: 500,
               color: t.fg.secondary,
               marginTop: 8,
-              letterSpacing: '0.02em',
+              letterSpacing: "0.02em",
             }}
           >
             {values.speakerRole}
@@ -260,16 +310,16 @@ function BannerSpeaker({
 
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
             gap: 24,
             paddingTop: 24,
             borderTop: `1px solid ${t.line.divider}`,
           }}
         >
           {[
-            { k: 'When', v: values.date },
-            { k: 'Where', v: values.venue },
+            { k: "When", v: values.date },
+            { k: "Where", v: values.venue },
           ].map(({ k, v }) => (
             <div key={k}>
               <div
@@ -277,9 +327,9 @@ function BannerSpeaker({
                   fontFamily: t.fonts.mono,
                   fontSize: 13,
                   fontWeight: 600,
-                  letterSpacing: '0.16em',
+                  letterSpacing: "0.16em",
                   color: t.fg.tertiary,
-                  textTransform: 'uppercase',
+                  textTransform: "uppercase",
                 }}
               >
                 {k}
@@ -291,7 +341,7 @@ function BannerSpeaker({
                   fontWeight: 600,
                   color: t.fg.primary,
                   marginTop: 6,
-                  letterSpacing: '-0.01em',
+                  letterSpacing: "-0.01em",
                 }}
               >
                 {v}
@@ -301,7 +351,7 @@ function BannerSpeaker({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 const speakerFields = [
@@ -314,30 +364,49 @@ const speakerFields = [
   eventFields.brand,
   eventFields.date,
   eventFields.venue,
-]
+];
 
 export const bannerSpeakerSquare: GraphicTemplate = {
-  id: 'banner-speaker-square',
-  name: 'Speaker · 1080×1080',
+  id: "banner-speaker-square",
+  name: "Speaker · 1080×1080",
   description:
-    'Square speaker spotlight for IG feed — photo on top, talk title and speaker below, minimal event meta.',
-  aspect: '1:1',
+    "Square speaker spotlight for IG feed — photo on top, talk title and speaker below, minimal event meta.",
+  aspect: "1:1",
   width: 1080,
   height: 1080,
   fields: speakerFields,
   defaults: eventDefaults,
-  Component: ({ values, t }) => <BannerSpeaker values={values} t={t} variant="square" />,
-}
+  Component: ({ values, t }) => (
+    <BannerSpeaker values={values} t={t} variant="square" />
+  ),
+};
 
 export const bannerSpeakerPortrait: GraphicTemplate = {
-  id: 'banner-speaker-portrait',
-  name: 'Speaker · 1080×1350',
+  id: "banner-speaker-portrait",
+  name: "Speaker · 1080×1350",
   description:
-    '4:5 portrait speaker spotlight for IG feed — taller photo, more breathing room around the talk title.',
-  aspect: '4:5',
+    "4:5 portrait speaker spotlight for IG feed — taller photo, more breathing room around the talk title.",
+  aspect: "4:5",
   width: 1080,
   height: 1350,
   fields: speakerFields,
   defaults: eventDefaults,
-  Component: ({ values, t }) => <BannerSpeaker values={values} t={t} variant="portrait" />,
-}
+  Component: ({ values, t }) => (
+    <BannerSpeaker values={values} t={t} variant="portrait" />
+  ),
+};
+
+export const bannerSpeakerLandscape: GraphicTemplate = {
+  id: "banner-speaker-landscape",
+  name: "Speaker · 1280×720",
+  description:
+    "16:9 landscape speaker spotlight — photo column on the left, talk + speaker meta on the right. Good for slides and OG.",
+  aspect: "16:9",
+  width: 1280,
+  height: 720,
+  fields: speakerFields,
+  defaults: eventDefaults,
+  Component: ({ values, t }) => (
+    <BannerSpeaker values={values} t={t} variant="landscape" />
+  ),
+};

@@ -18,8 +18,9 @@ const DEFAULT_ACCENT = '#2B6CA8' // tile
 // Used so the same speaker photo / talk title / meta carries between the
 // square and portrait speaker variants without re-uploading.
 const LINKED_IDS: Record<string, Array<string>> = {
-  'banner-speaker-square': ['banner-speaker-portrait'],
-  'banner-speaker-portrait': ['banner-speaker-square'],
+  'banner-speaker-square': ['banner-speaker-portrait', 'banner-speaker-landscape'],
+  'banner-speaker-portrait': ['banner-speaker-square', 'banner-speaker-landscape'],
+  'banner-speaker-landscape': ['banner-speaker-square', 'banner-speaker-portrait'],
 }
 
 type PreviewMode = 'live' | 'export'

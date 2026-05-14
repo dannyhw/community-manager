@@ -1,7 +1,11 @@
 import { bannerCommunity } from './BannerCommunity'
 import { bannerGlance } from './BannerGlance'
 import { bannerSimple } from './BannerSimple'
-import { bannerSpeakerPortrait, bannerSpeakerSquare } from './BannerSpeaker'
+import {
+  bannerSpeakerLandscape,
+  bannerSpeakerPortrait,
+  bannerSpeakerSquare,
+} from './BannerSpeaker'
 import { bannerStory } from './BannerStory'
 import { bannerTicket, bannerTicketAI } from './BannerTicket'
 import { bannerTicketAISquare } from './BannerTicketAISquare'
@@ -18,6 +22,7 @@ export const templates: Array<GraphicTemplate> = [
   bannerStory,
   bannerSpeakerSquare,
   bannerSpeakerPortrait,
+  bannerSpeakerLandscape,
   bannerCommunity,
 ]
 
