@@ -24,7 +24,7 @@ export default function ThemeControls({ mode, accent, onMode, onAccent, onReset 
         <button
           type="button"
           onClick={onReset}
-          className="rounded-full border border-[var(--rnp-line)] bg-[var(--rnp-chip-bg)] px-3 py-1 text-xs font-semibold text-[var(--rnp-fg)] transition hover:-translate-y-0.5"
+          className="shrink-0 whitespace-nowrap rounded-full border border-[var(--rnp-line)] bg-[var(--rnp-chip-bg)] px-3 py-1 text-xs font-semibold text-[var(--rnp-fg)] transition hover:-translate-y-0.5"
         >
           Reset all
         </button>
