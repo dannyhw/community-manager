@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { toPng } from 'html-to-image'
+import { toBlob, toPng } from 'html-to-image'
 import GraphicCanvas from '../components/GraphicCanvas'
 import TemplateEditor from '../components/TemplateEditor'
 import TemplatePicker from '../components/TemplatePicker'
@@ -50,6 +50,23 @@ type PreviewMode = 'live' | 'export'
 // PNG you download matches what the export-preview shows.
 function rasterise(node: HTMLElement, width: number, height: number) {
   return toPng(node, {
+    cacheBust: true,
+    pixelRatio: 2,
+    width,
+    height,
+    canvasWidth: width,
+    canvasHeight: height,
+    style: { transform: 'scale(1)', transformOrigin: 'top left' },
+  })
+}
+
+// Blob variant used by the Download button. We can't keep using the data
+// URL for downloads — Chrome silently no-ops `anchor.click()` when the
+// href data URL is over ~2 MB, which the bigger speaker templates
+// (1280×720 with a photo) easily exceed once rasterised at pixelRatio 2.
+// An object URL backed by a Blob has no such limit.
+function rasteriseToBlob(node: HTMLElement, width: number, height: number) {
+  return toBlob(node, {
     cacheBust: true,
     pixelRatio: 2,
     width,
@@ -244,15 +261,27 @@ function GraphicsStudio() {
     if (!node) return
     setExporting(true)
     setExportError(null)
+    let objectUrl: string | null = null
     try {
-      const dataUrl = await rasterise(node, template.width, template.height)
+      const blob = await rasteriseToBlob(node, template.width, template.height)
+      if (!blob) throw new Error('Export produced no image')
+      // Object URL — unlimited size, unlike a data URL in href.
+      objectUrl = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.download = `${template.id}-${slug}.png`
-      link.href = dataUrl
+      link.href = objectUrl
+      // Some browsers ignore programmatic clicks on detached anchors, so
+      // briefly attach to the document before clicking.
+      document.body.appendChild(link)
       link.click()
+      link.remove()
     } catch (err) {
       setExportError(err instanceof Error ? err.message : 'Export failed')
     } finally {
+      // Free the blob once the browser has had a chance to start the
+      // download. Revoking immediately can cancel slow saves on some
+      // browsers, so we give it a tick.
+      if (objectUrl) window.setTimeout(() => URL.revokeObjectURL(objectUrl!), 1000)
       setExporting(false)
     }
   }, [template, slug])

@@ -33,11 +33,21 @@ const GraphicCanvas = forwardRef<HTMLDivElement, Props>(function GraphicCanvas(
 
   return (
     <div ref={wrapperRef} className="w-full">
+      {/* Two-layer wrapper: the OUTER div carries the rounded corners and
+          drop shadow purely for in-studio polish, while the INNER div is
+          the `html-to-image` capture node and stays flush-rectangular.
+          Earlier the radius + shadow lived on the capture node, which
+          baked transparent corners into the exported PNG — fine for our
+          page, terrible against any non-matching background on Instagram
+          / LinkedIn / Twitter. Keep the radius here, not down there. */}
       <div
         style={{
           width: '100%',
           height: template.height * scale,
           position: 'relative',
+          borderRadius: 14,
+          overflow: 'hidden',
+          boxShadow: theme.shadow.e3,
         }}
       >
         <div
@@ -51,9 +61,6 @@ const GraphicCanvas = forwardRef<HTMLDivElement, Props>(function GraphicCanvas(
             position: 'absolute',
             top: 0,
             left: 0,
-            borderRadius: 14,
-            overflow: 'hidden',
-            boxShadow: theme.shadow.e3,
           }}
         >
           <Body values={values} t={theme} />
