@@ -130,6 +130,93 @@ export const eventFields = {
     type: 'textarea',
     placeholder: 'Reanimated 4 in production',
   } satisfies TemplateField,
+  speaker1Image: {
+    key: 'speaker1Image',
+    label: 'Speaker 1 photo',
+    type: 'image',
+  } satisfies TemplateField,
+  speaker1ImageCrop: {
+    key: 'speaker1ImageCrop',
+    label: 'Speaker 1 crop',
+    type: 'select',
+    options: [
+      { value: 'center 0%', label: 'Top' },
+      { value: 'center 20%', label: 'Face (top bias)' },
+      { value: 'center 50%', label: 'Center' },
+      { value: 'center 80%', label: 'Lower' },
+      { value: 'center 100%', label: 'Bottom' },
+    ],
+  } satisfies TemplateField,
+  speaker1Name: {
+    key: 'speaker1Name',
+    label: 'Speaker 1 name',
+    type: 'text',
+    placeholder: 'Joana Almeida',
+  } satisfies TemplateField,
+  speaker1Role: {
+    key: 'speaker1Role',
+    label: 'Speaker 1 role',
+    type: 'text',
+    placeholder: 'Staff Engineer · Reanimated',
+  } satisfies TemplateField,
+  speaker2Image: {
+    key: 'speaker2Image',
+    label: 'Speaker 2 photo',
+    type: 'image',
+  } satisfies TemplateField,
+  speaker2ImageCrop: {
+    key: 'speaker2ImageCrop',
+    label: 'Speaker 2 crop',
+    type: 'select',
+    options: [
+      { value: 'center 0%', label: 'Top' },
+      { value: 'center 20%', label: 'Face (top bias)' },
+      { value: 'center 50%', label: 'Center' },
+      { value: 'center 80%', label: 'Lower' },
+      { value: 'center 100%', label: 'Bottom' },
+    ],
+  } satisfies TemplateField,
+  speaker2Name: {
+    key: 'speaker2Name',
+    label: 'Speaker 2 name',
+    type: 'text',
+    placeholder: 'Miguel Ferreira',
+  } satisfies TemplateField,
+  speaker2Role: {
+    key: 'speaker2Role',
+    label: 'Speaker 2 role',
+    type: 'text',
+    placeholder: 'Mobile Lead · Talkdesk',
+  } satisfies TemplateField,
+  speaker3Image: {
+    key: 'speaker3Image',
+    label: 'Speaker 3 photo',
+    type: 'image',
+  } satisfies TemplateField,
+  speaker3ImageCrop: {
+    key: 'speaker3ImageCrop',
+    label: 'Speaker 3 crop',
+    type: 'select',
+    options: [
+      { value: 'center 0%', label: 'Top' },
+      { value: 'center 20%', label: 'Face (top bias)' },
+      { value: 'center 50%', label: 'Center' },
+      { value: 'center 80%', label: 'Lower' },
+      { value: 'center 100%', label: 'Bottom' },
+    ],
+  } satisfies TemplateField,
+  speaker3Name: {
+    key: 'speaker3Name',
+    label: 'Speaker 3 name',
+    type: 'text',
+    placeholder: 'Sofia Rocha',
+  } satisfies TemplateField,
+  speaker3Role: {
+    key: 'speaker3Role',
+    label: 'Speaker 3 role',
+    type: 'text',
+    placeholder: 'Founder · Tinta Labs',
+  } satisfies TemplateField,
 }
 
 export const eventDefaults: TemplateValues = {
@@ -154,6 +241,18 @@ export const eventDefaults: TemplateValues = {
   speakerName: 'Joana Almeida',
   speakerRole: 'Staff Engineer · Reanimated',
   talkTitle: 'Reanimated 4 in production',
+  speaker1Image: '',
+  speaker1ImageCrop: 'center 20%',
+  speaker1Name: 'Joana Almeida',
+  speaker1Role: 'Staff Engineer · Reanimated',
+  speaker2Image: '',
+  speaker2ImageCrop: 'center 20%',
+  speaker2Name: 'Miguel Ferreira',
+  speaker2Role: 'Mobile Lead · Talkdesk',
+  speaker3Image: '',
+  speaker3ImageCrop: 'center 20%',
+  speaker3Name: 'Sofia Rocha',
+  speaker3Role: 'Founder · Tinta Labs',
 }
 
 // Deterministic barcode strip — same seed as the original banner.jsx so the
