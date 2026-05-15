@@ -100,7 +100,7 @@ const VARIANTS: Record<Variant, VariantConfig> = {
     headerHalftone: { cols: 36, rows: 64 },
     motifSize: 38,
     eyebrowSize: 20,
-    brandSize: 92,
+    brandSize: 140,
     editionSize: 20,
     bodyPadding: "76px 64px",
     featuringSize: 20,
