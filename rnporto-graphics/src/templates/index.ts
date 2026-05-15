@@ -6,7 +6,11 @@ import {
   bannerSpeakerPortrait,
   bannerSpeakerSquare,
 } from './BannerSpeaker'
-import { bannerSpeakers3 } from './BannerSpeakers3'
+import {
+  bannerSpeakers3,
+  bannerSpeakers3Landscape,
+  bannerSpeakers3Square,
+} from './BannerSpeakers3'
 import { bannerStory } from './BannerStory'
 import { bannerTicket, bannerTicketAI } from './BannerTicket'
 import { bannerTicketAISquare } from './BannerTicketAISquare'
@@ -25,6 +29,8 @@ export const templates: Array<GraphicTemplate> = [
   bannerSpeakerPortrait,
   bannerSpeakerLandscape,
   bannerSpeakers3,
+  bannerSpeakers3Square,
+  bannerSpeakers3Landscape,
   bannerCommunity,
 ]
 

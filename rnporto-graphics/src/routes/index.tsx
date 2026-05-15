@@ -42,6 +42,9 @@ const LINKED_IDS: Record<string, Array<string>> = {
   'banner-speaker-square': ['banner-speaker-portrait', 'banner-speaker-landscape'],
   'banner-speaker-portrait': ['banner-speaker-square', 'banner-speaker-landscape'],
   'banner-speaker-landscape': ['banner-speaker-square', 'banner-speaker-portrait'],
+  'banner-speakers-3': ['banner-speakers-3-square', 'banner-speakers-3-landscape'],
+  'banner-speakers-3-square': ['banner-speakers-3', 'banner-speakers-3-landscape'],
+  'banner-speakers-3-landscape': ['banner-speakers-3', 'banner-speakers-3-square'],
 }
 
 type PreviewMode = 'live' | 'export'
