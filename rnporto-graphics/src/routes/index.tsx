@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import { toBlob, toPng } from 'html-to-image'
 import GraphicCanvas from '../components/GraphicCanvas'
 import TemplateEditor from '../components/TemplateEditor'
@@ -10,7 +9,6 @@ import { resolveTheme, type ThemeMode } from '../system/tokens'
 import { templates, templatesById } from '../templates'
 import type { TemplateValues } from '../templates/types'
 import { getGraphic, saveGraphic } from '../server/gallery'
-import { useSuggestions } from '../lib/suggestions'
 
 interface StudioSearch {
   /** When present, the studio fetches that gallery entry and restores its state. */
@@ -163,8 +161,6 @@ function GraphicsStudio() {
   const template = templatesById[activeId]
   const values = valuesById[activeId]
   const theme = useMemo(() => resolveTheme(mode, accent), [mode, accent])
-  const suggestions = useSuggestions()
-  const queryClient = useQueryClient()
 
   // Reflect the resolved accent + mode onto the document root so the studio
   // chrome (header, cards, buttons) tracks the same design tokens the
@@ -387,9 +383,6 @@ function GraphicsStudio() {
       setSaveNameInput('')
       setSaveToast(overwrite ? `Saved changes to “${entry.name}”.` : `Saved “${entry.name}” to gallery.`)
       window.setTimeout(() => setSaveToast(null), 3500)
-      // Refresh the suggestion pool so the newly saved values appear as
-      // pickable chips/thumbnails in the editor without a reload.
-      queryClient.invalidateQueries({ queryKey: ['gallery', 'list'] })
       // Keep the URL in sync so reload / share preserves the loaded entry.
       navigate({ to: '/', search: { load: entry.id }, replace: true })
     } catch (err) {
@@ -434,7 +427,6 @@ function GraphicsStudio() {
             values={values}
             onChange={updateField}
             onReset={resetTemplate}
-            suggestions={suggestions}
           />
         </div>
 

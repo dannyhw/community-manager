@@ -122,7 +122,7 @@ function BannerSpeaker({
     photoHeight = 1280;
     baseTitle = 108;
     nameSize = 64;
-    contentPadding = "48px 56px 56px";
+    contentPadding = "56px 64px 64px";
   } else {
     width = 1080;
     height = 1080;
@@ -150,6 +150,217 @@ function BannerSpeaker({
             : 1;
   const titleSize = Math.round(baseTitle * titleScale);
   const titleLineHeight = titleScale < 1 ? 1 : 0.95;
+
+  if (isStory) {
+    // Full-bleed photo with all text overlaid directly on the image. Top
+    // + bottom gradient scrims provide contrast — no pill chips. Brand
+    // identity comes through the accent-coloured atom; everything else
+    // is white so the dark scrim guarantees readability across accents.
+    const edgeInset = 56;
+    return (
+      <div
+        style={{
+          width,
+          height,
+          position: "relative",
+          overflow: "hidden",
+          background: t.bg.canvas,
+          color: t.fg.primary,
+          fontFamily: t.fonts.sans,
+        }}
+      >
+        <SpeakerPhoto
+          src={values.speakerImage}
+          crop={values.speakerImageCrop}
+          width={width}
+          height={height}
+          t={t}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            top: 0,
+            height: 260,
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.2) 78%, rgba(0,0,0,0) 100%)",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 1140,
+            background:
+              "linear-gradient(to top, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.88) 32%, rgba(0,0,0,0.62) 58%, rgba(0,0,0,0.25) 82%, rgba(0,0,0,0) 100%)",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            top: 64,
+            left: edgeInset,
+            right: edgeInset,
+            zIndex: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 24,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              height: 60,
+              padding: "0 24px",
+              background: t.accent,
+              color: t.accentInk,
+              borderRadius: 999,
+              boxSizing: "border-box",
+            }}
+          >
+            <MotifAtom color={t.accentInk} size={30} strokeWidth={1.6} />
+            <span
+              style={{
+                fontFamily: t.fonts.mono,
+                fontSize: 22,
+                fontWeight: 600,
+                letterSpacing: "0.16em",
+                textTransform: "uppercase",
+                lineHeight: 1,
+              }}
+            >
+              {values.brand}
+            </span>
+          </div>
+          <span
+            style={{
+              fontFamily: t.fonts.mono,
+              fontSize: 22,
+              fontWeight: 600,
+              letterSpacing: "0.18em",
+              color: "rgba(255,255,255,0.92)",
+              textTransform: "uppercase",
+              whiteSpace: "nowrap",
+              lineHeight: 1,
+            }}
+          >
+            {values.editionTag}
+          </span>
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            padding: `0 ${edgeInset}px ${edgeInset}px`,
+            display: "flex",
+            flexDirection: "column",
+            gap: 36,
+            zIndex: 2,
+            boxSizing: "border-box",
+          }}
+        >
+          {values.date || values.venue ? (
+            <div
+              style={{
+                fontFamily: t.fonts.mono,
+                fontSize: 26,
+                fontWeight: 600,
+                letterSpacing: "0.16em",
+                color: "#fff",
+                textTransform: "uppercase",
+              }}
+            >
+              {[values.date, values.venue].filter(Boolean).join(" · ")}
+            </div>
+          ) : null}
+
+          <div>
+            <div
+              style={{
+                fontFamily: t.fonts.mono,
+                fontSize: 22,
+                fontWeight: 600,
+                letterSpacing: "0.22em",
+                color: "rgba(255,255,255,0.88)",
+                textTransform: "uppercase",
+              }}
+            >
+              The talk
+            </div>
+            <div
+              style={{
+                fontSize: titleSize,
+                fontWeight: 700,
+                lineHeight: titleLineHeight,
+                color: "#fff",
+                letterSpacing: "-0.035em",
+                marginTop: 14,
+                textWrap: "balance",
+                whiteSpace: "pre-line",
+              }}
+            >
+              {values.talkTitle}
+            </div>
+          </div>
+
+          <div>
+            <div
+              style={{
+                fontFamily: t.fonts.mono,
+                fontSize: 22,
+                fontWeight: 600,
+                letterSpacing: "0.22em",
+                color: "rgba(255,255,255,0.88)",
+                textTransform: "uppercase",
+              }}
+            >
+              The speaker
+            </div>
+            <div
+              style={{
+                fontSize: nameSize,
+                fontWeight: 700,
+                lineHeight: 1.02,
+                color: "#fff",
+                letterSpacing: "-0.025em",
+                marginTop: 12,
+              }}
+            >
+              {values.speakerName}
+            </div>
+            <div
+              style={{
+                fontFamily: t.fonts.mono,
+                fontSize: 28,
+                fontWeight: 500,
+                color: "rgba(255,255,255,0.92)",
+                marginTop: 12,
+                letterSpacing: "0.02em",
+              }}
+            >
+              {values.speakerRole}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -316,47 +527,49 @@ function BannerSpeaker({
           </div>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 24,
-            paddingTop: 24,
-            borderTop: `1px solid ${t.line.divider}`,
-          }}
-        >
-          {[
-            { k: "When", v: values.date },
-            { k: "Where", v: values.venue },
-          ].map(({ k, v }) => (
-            <div key={k}>
-              <div
-                style={{
-                  fontFamily: t.fonts.mono,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  letterSpacing: "0.16em",
-                  color: t.fg.tertiary,
-                  textTransform: "uppercase",
-                }}
-              >
-                {k}
+        {isStory ? null : (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 24,
+              paddingTop: 24,
+              borderTop: `1px solid ${t.line.divider}`,
+            }}
+          >
+            {[
+              { k: "When", v: values.date },
+              { k: "Where", v: values.venue },
+            ].map(({ k, v }) => (
+              <div key={k}>
+                <div
+                  style={{
+                    fontFamily: t.fonts.mono,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    letterSpacing: "0.16em",
+                    color: t.fg.tertiary,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {k}
+                </div>
+                <div
+                  style={{
+                    fontFamily: t.fonts.mono,
+                    fontSize: 26,
+                    fontWeight: 600,
+                    color: t.fg.primary,
+                    marginTop: 6,
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  {v}
+                </div>
               </div>
-              <div
-                style={{
-                  fontFamily: t.fonts.mono,
-                  fontSize: 26,
-                  fontWeight: 600,
-                  color: t.fg.primary,
-                  marginTop: 6,
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                {v}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

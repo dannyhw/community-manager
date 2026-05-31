@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SpeakersRouteImport } from './routes/speakers'
 import { Route as GalleryRouteImport } from './routes/gallery'
+import { Route as EventsRouteImport } from './routes/events'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as ApiSpeakersIdPhotoRouteImport } from './routes/api/speakers/$id/photo'
@@ -25,6 +26,11 @@ const SpeakersRoute = SpeakersRouteImport.update({
 const GalleryRoute = GalleryRouteImport.update({
   id: '/gallery',
   path: '/gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -55,6 +61,7 @@ const ApiGalleryIdAssetKeyRoute = ApiGalleryIdAssetKeyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
   '/speakers': typeof SpeakersRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
   '/speakers': typeof SpeakersRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
   '/speakers': typeof SpeakersRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/events'
     | '/gallery'
     | '/speakers'
     | '/demo/tanstack-query'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/events'
     | '/gallery'
     | '/speakers'
     | '/demo/tanstack-query'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/events'
     | '/gallery'
     | '/speakers'
     | '/demo/tanstack-query'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EventsRoute: typeof EventsRoute
   GalleryRoute: typeof GalleryRoute
   SpeakersRoute: typeof SpeakersRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/gallery'
       fullPath: '/gallery'
       preLoaderRoute: typeof GalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -177,6 +197,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EventsRoute: EventsRoute,
   GalleryRoute: GalleryRoute,
   SpeakersRoute: SpeakersRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
