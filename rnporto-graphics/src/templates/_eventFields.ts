@@ -167,6 +167,12 @@ export const eventFields = {
     type: 'text',
     placeholder: 'Staff Engineer · Reanimated',
   } satisfies TemplateField,
+  speaker1TalkTitle: {
+    key: 'speaker1TalkTitle',
+    label: 'Speaker 1 talk title',
+    type: 'textarea',
+    placeholder: 'Reanimated 4 in production',
+  } satisfies TemplateField,
   speaker2Image: {
     key: 'speaker2Image',
     label: 'Speaker 2 photo',
@@ -196,6 +202,12 @@ export const eventFields = {
     label: 'Speaker 2 role',
     type: 'text',
     placeholder: 'Mobile Lead · Talkdesk',
+  } satisfies TemplateField,
+  speaker2TalkTitle: {
+    key: 'speaker2TalkTitle',
+    label: 'Speaker 2 talk title',
+    type: 'textarea',
+    placeholder: 'Shipping with Expo at scale',
   } satisfies TemplateField,
   speaker3Image: {
     key: 'speaker3Image',
@@ -227,6 +239,12 @@ export const eventFields = {
     type: 'text',
     placeholder: 'Founder · Tinta Labs',
   } satisfies TemplateField,
+  speaker3TalkTitle: {
+    key: 'speaker3TalkTitle',
+    label: 'Speaker 3 talk title',
+    type: 'textarea',
+    placeholder: 'Designing tooling that ships',
+  } satisfies TemplateField,
 }
 
 export const eventDefaults: TemplateValues = {
@@ -256,14 +274,17 @@ export const eventDefaults: TemplateValues = {
   speaker1ImageCrop: '50% 20%',
   speaker1Name: 'Joana Almeida',
   speaker1Role: 'Staff Engineer · Reanimated',
+  speaker1TalkTitle: 'Reanimated 4 in production',
   speaker2Image: '',
   speaker2ImageCrop: '50% 20%',
   speaker2Name: 'Miguel Ferreira',
   speaker2Role: 'Mobile Lead · Talkdesk',
+  speaker2TalkTitle: 'Shipping with Expo at scale',
   speaker3Image: '',
   speaker3ImageCrop: '50% 20%',
   speaker3Name: 'Sofia Rocha',
   speaker3Role: 'Founder · Tinta Labs',
+  speaker3TalkTitle: 'Designing tooling that ships',
 }
 
 // Deterministic barcode strip — same seed as the original banner.jsx so the

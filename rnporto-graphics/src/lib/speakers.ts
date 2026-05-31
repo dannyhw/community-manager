@@ -50,10 +50,11 @@ export function buildApplyPatch(
   const nameKey = `speaker${slot}Name`
   const roleKey = `speaker${slot}Role`
   const imageKey = `speaker${slot}Image`
+  const talkTitleKey = slot ? `speaker${slot}TalkTitle` : 'talkTitle'
   if (has(nameKey)) patch[nameKey] = speaker.name
   if (has(roleKey)) patch[roleKey] = formatRole(speaker)
   if (has(imageKey) && speaker.photoUrl) patch[imageKey] = speaker.photoUrl
-  if (has('talkTitle')) patch.talkTitle = speaker.talkTitle
+  if (has(talkTitleKey)) patch[talkTitleKey] = speaker.talkTitle
   return patch
 }
 

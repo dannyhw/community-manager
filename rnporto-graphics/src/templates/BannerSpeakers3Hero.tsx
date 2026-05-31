@@ -6,23 +6,25 @@ import type { GraphicTemplate, TemplateValues } from "./types";
 
 const WIDTH = 1080;
 const HEIGHT = 1920;
-const HERO_HEIGHT = 720;
+const HERO_HEIGHT = 580;
 const FOOTER_HEIGHT = 88;
 const PHOTO_WIDTH = 320;
 const PHOTO_GAP = 18;
-const CAPTION_HEIGHT = 124;
+const CAPTION_HEIGHT = 110;
 
 function SpeakerCard({
   src,
   crop,
   name,
   role,
+  talkTitle,
   t,
 }: {
   src: string;
   crop: string;
   name: string;
   role: string;
+  talkTitle: string;
   t: ThemeTokens;
 }) {
   return (
@@ -88,44 +90,82 @@ function SpeakerCard({
             </div>
           </div>
         )}
+
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 260,
+            background:
+              "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.72) 40%, rgba(0,0,0,0.32) 75%, rgba(0,0,0,0) 100%)",
+            pointerEvents: "none",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            padding: "0 18px 22px",
+            textAlign: "center",
+            color: "#fff",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 26,
+              fontWeight: 700,
+              lineHeight: 1.05,
+              letterSpacing: "-0.02em",
+              textWrap: "balance",
+            }}
+          >
+            {name}
+          </div>
+          <div
+            style={{
+              fontFamily: t.fonts.mono,
+              fontSize: 15,
+              fontWeight: 500,
+              color: "rgba(255,255,255,0.85)",
+              marginTop: 8,
+              letterSpacing: "0.02em",
+              lineHeight: 1.3,
+              textWrap: "balance",
+            }}
+          >
+            {role}
+          </div>
+        </div>
       </div>
       <div
         style={{
-          marginTop: 20,
+          marginTop: 18,
           height: CAPTION_HEIGHT,
           flex: "none",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          alignItems: "flex-start",
+          justifyContent: "center",
           textAlign: "center",
           width: "100%",
         }}
       >
         <div
           style={{
-            fontSize: 30,
-            fontWeight: 700,
-            lineHeight: 1.05,
+            fontSize: 22,
+            fontWeight: 600,
+            lineHeight: 1.15,
             color: t.fg.primary,
-            letterSpacing: "-0.02em",
+            letterSpacing: "-0.015em",
             textWrap: "balance",
+            whiteSpace: "pre-line",
           }}
         >
-          {name}
-        </div>
-        <div
-          style={{
-            fontFamily: t.fonts.mono,
-            fontSize: 16,
-            fontWeight: 500,
-            color: t.fg.secondary,
-            marginTop: 10,
-            letterSpacing: "0.02em",
-            lineHeight: 1.3,
-            textWrap: "balance",
-          }}
-        >
-          {role}
+          {talkTitle}
         </div>
       </div>
     </div>
@@ -144,6 +184,7 @@ function BannerSpeakers3Hero({
     crop: values[`speaker${i}ImageCrop`],
     name: values[`speaker${i}Name`],
     role: values[`speaker${i}Role`],
+    talkTitle: values[`speaker${i}TalkTitle`],
   }));
 
   return (
@@ -185,7 +226,6 @@ function BannerSpeakers3Hero({
           maxOpacity={0.2}
         />
 
-        {/* Small brand strip — community is present, not loud */}
         <div
           style={{
             position: "relative",
@@ -195,12 +235,12 @@ function BannerSpeakers3Hero({
             flex: "none",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <MotifAtom color={t.accentInk} size={30} strokeWidth={1.4} />
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <MotifAtom color={t.accentInk} size={36} strokeWidth={1.5} />
             <span
               style={{
                 fontFamily: t.fonts.mono,
-                fontSize: 18,
+                fontSize: 22,
                 fontWeight: 600,
                 letterSpacing: "0.22em",
                 textTransform: "uppercase",
@@ -212,12 +252,12 @@ function BannerSpeakers3Hero({
           <span
             style={{
               fontFamily: t.fonts.mono,
-              fontSize: 16,
+              fontSize: 20,
               fontWeight: 600,
               letterSpacing: "0.2em",
               textTransform: "uppercase",
-              opacity: 0.92,
-              padding: "8px 16px",
+              opacity: 0.94,
+              padding: "10px 20px",
               border: `1.5px solid ${t.accentInk}`,
               borderRadius: 999,
               whiteSpace: "nowrap",
@@ -227,33 +267,14 @@ function BannerSpeakers3Hero({
           </span>
         </div>
 
-        <div style={{ flex: 1 }} />
-
-        {/* Theme — what the talks are about, sits above the date */}
         <div
           style={{
             position: "relative",
-            fontFamily: t.fonts.mono,
-            fontSize: 30,
-            fontWeight: 600,
-            letterSpacing: "0.28em",
-            textTransform: "uppercase",
-            opacity: 0.92,
-            marginBottom: 18,
-            flex: "none",
-          }}
-        >
-          {values.talksTheme}
-        </div>
-
-        {/* DATE — hero */}
-        <div
-          style={{
-            position: "relative",
-            fontSize: 188,
+            marginTop: 56,
+            fontSize: 130,
             fontWeight: 700,
-            lineHeight: 0.9,
-            letterSpacing: "-0.055em",
+            lineHeight: 0.92,
+            letterSpacing: "-0.045em",
             textWrap: "balance",
             flex: "none",
           }}
@@ -261,31 +282,29 @@ function BannerSpeakers3Hero({
           {values.date}
         </div>
 
-        {/* Venue + FREE pill */}
+        <div
+          style={{
+            position: "relative",
+            marginTop: 20,
+            fontSize: 96,
+            fontWeight: 700,
+            lineHeight: 0.96,
+            letterSpacing: "-0.035em",
+            textWrap: "balance",
+            flex: "none",
+          }}
+        >
+          {values.venue}
+        </div>
+
         <div
           style={{
             position: "relative",
             marginTop: 28,
             display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            gap: 20,
             flex: "none",
           }}
         >
-          <div
-            style={{
-              fontSize: 50,
-              fontWeight: 600,
-              letterSpacing: "-0.025em",
-              lineHeight: 1.05,
-              flex: 1,
-              minWidth: 0,
-              textWrap: "balance",
-            }}
-          >
-            {values.venue}
-          </div>
           <div
             style={{
               fontFamily: t.fonts.mono,
@@ -298,8 +317,6 @@ function BannerSpeakers3Hero({
               color: t.accent,
               borderRadius: 999,
               whiteSpace: "nowrap",
-              flex: "none",
-              alignSelf: "flex-end",
             }}
           >
             {values.pill}
@@ -388,7 +405,6 @@ export const bannerSpeakers3Hero: GraphicTemplate = {
   fields: [
     eventFields.brand,
     eventFields.editionTag,
-    eventFields.talksTheme,
     eventFields.date,
     eventFields.venue,
     eventFields.pill,
@@ -397,14 +413,17 @@ export const bannerSpeakers3Hero: GraphicTemplate = {
     eventFields.speaker1ImageCrop,
     eventFields.speaker1Name,
     eventFields.speaker1Role,
+    eventFields.speaker1TalkTitle,
     eventFields.speaker2Image,
     eventFields.speaker2ImageCrop,
     eventFields.speaker2Name,
     eventFields.speaker2Role,
+    eventFields.speaker2TalkTitle,
     eventFields.speaker3Image,
     eventFields.speaker3ImageCrop,
     eventFields.speaker3Name,
     eventFields.speaker3Role,
+    eventFields.speaker3TalkTitle,
   ],
   defaults: eventDefaults,
   Component: BannerSpeakers3Hero,
