@@ -243,6 +243,21 @@ function GraphicsStudio() {
   }, [])
 
   const slug = useMemo(() => {
+    // Speaker templates → use the (first) speaker's first name. Stripped
+    // of unsafe characters and capped at 7 chars so a long surname
+    // doesn't blow out the file name.
+    const isSpeaker =
+      template.id.startsWith('banner-speaker') ||
+      template.id.startsWith('banner-speakers')
+    if (isSpeaker) {
+      const speakerName = values.speakerName || values.speaker1Name || ''
+      const firstName = speakerName.trim().split(/\s+/)[0] ?? ''
+      const safe = firstName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '')
+        .slice(0, 7)
+      if (safe) return safe
+    }
     const seed =
       values.titleLine1 ||
       values.titleLine2 ||
@@ -255,9 +270,17 @@ function GraphicsStudio() {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '')
-        .slice(0, 60) || template.id
+        .slice(0, 40) || template.id
     )
   }, [values, template])
+
+  // Shorter file-name stem than the full template id — drop the redundant
+  // `banner-` prefix so a download lands as `speaker-square-joana.png`
+  // instead of `banner-speaker-square-joana.png`.
+  const fileStem = useMemo(
+    () => template.id.replace(/^banner-/, ''),
+    [template.id],
+  )
 
   const handleExport = useCallback(async () => {
     const node = canvasRef.current
@@ -271,7 +294,7 @@ function GraphicsStudio() {
       // Object URL — unlimited size, unlike a data URL in href.
       objectUrl = URL.createObjectURL(blob)
       const link = document.createElement('a')
-      link.download = `${template.id}-${slug}.png`
+      link.download = `${fileStem}-${slug}.png`
       link.href = objectUrl
       // Some browsers ignore programmatic clicks on detached anchors, so
       // briefly attach to the document before clicking.
@@ -287,7 +310,7 @@ function GraphicsStudio() {
       if (objectUrl) window.setTimeout(() => URL.revokeObjectURL(objectUrl!), 1000)
       setExporting(false)
     }
-  }, [template, slug])
+  }, [template, slug, fileStem])
 
   // Open the inline save form. Pre-fills the name field: when overwriting,
   // reuse the existing entry's name; otherwise seed from the template name

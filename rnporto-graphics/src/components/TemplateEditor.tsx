@@ -1,10 +1,152 @@
-import type { GraphicTemplate, TemplateValues } from '../templates/types'
+import { useCallback, useRef, useState } from 'react'
+import type {
+  GraphicTemplate,
+  TemplateField,
+  TemplateValues,
+} from '../templates/types'
 
 interface Props {
   template: GraphicTemplate
   values: TemplateValues
   onChange: (key: string, value: string) => void
   onReset: () => void
+}
+
+// Parse a CSS `object-position`-style value into x/y percentages. Accepts
+// both the legacy keyword form (`center 20%`) and the normalised numeric
+// form (`50% 20%`) so older saved entries keep working.
+function parseCrop(value: string): { x: number; y: number } {
+  const fallback = { x: 50, y: 20 }
+  if (!value) return fallback
+  const parts = value.trim().split(/\s+/)
+  if (parts.length !== 2) return fallback
+  const axis = (token: string, axis: 'x' | 'y'): number => {
+    if (token === 'center') return 50
+    if (axis === 'x') {
+      if (token === 'left') return 0
+      if (token === 'right') return 100
+    } else {
+      if (token === 'top') return 0
+      if (token === 'bottom') return 100
+    }
+    const n = parseFloat(token)
+    return Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : 50
+  }
+  return { x: axis(parts[0], 'x'), y: axis(parts[1], 'y') }
+}
+
+function formatCrop(x: number, y: number): string {
+  return `${Math.round(x)}% ${Math.round(y)}%`
+}
+
+function CropField({
+  field,
+  value,
+  src,
+  onChange,
+}: {
+  field: TemplateField
+  value: string
+  src: string
+  onChange: (value: string) => void
+}) {
+  const { x, y } = parseCrop(value)
+  const areaRef = useRef<HTMLDivElement | null>(null)
+  const [dragging, setDragging] = useState(false)
+
+  const setFromPointer = useCallback(
+    (clientX: number, clientY: number) => {
+      const el = areaRef.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      if (rect.width === 0 || rect.height === 0) return
+      const px = ((clientX - rect.left) / rect.width) * 100
+      const py = ((clientY - rect.top) / rect.height) * 100
+      onChange(formatCrop(Math.max(0, Math.min(100, px)), Math.max(0, Math.min(100, py))))
+    },
+    [onChange],
+  )
+
+  const presets = field.options ?? []
+  const currentValue = formatCrop(x, y)
+  const matchedPreset = presets.find((p) => p.value === currentValue || p.value === value)
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--rnp-fg-soft)]">
+        {field.label}
+      </span>
+      {src ? (
+        <div
+          ref={areaRef}
+          onPointerDown={(e) => {
+            e.preventDefault()
+            ;(e.target as Element).setPointerCapture?.(e.pointerId)
+            setDragging(true)
+            setFromPointer(e.clientX, e.clientY)
+          }}
+          onPointerMove={(e) => {
+            if (dragging) setFromPointer(e.clientX, e.clientY)
+          }}
+          onPointerUp={(e) => {
+            ;(e.target as Element).releasePointerCapture?.(e.pointerId)
+            setDragging(false)
+          }}
+          onPointerCancel={() => setDragging(false)}
+          className="relative w-full overflow-hidden rounded-md border border-[var(--rnp-line)] bg-[var(--rnp-bg-sunken)] select-none"
+          style={{
+            cursor: dragging ? 'grabbing' : 'crosshair',
+            touchAction: 'none',
+            aspectRatio: '4 / 3',
+          }}
+          title="Drag to position the focal point"
+        >
+          <img
+            src={src}
+            alt=""
+            draggable={false}
+            className="pointer-events-none block h-full w-full object-contain"
+          />
+          <div
+            className="pointer-events-none absolute h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white"
+            style={{
+              left: `${x}%`,
+              top: `${y}%`,
+              background: 'var(--rnp-accent)',
+              boxShadow: '0 0 0 2px var(--rnp-accent), 0 2px 8px rgba(0,0,0,0.45)',
+            }}
+          />
+        </div>
+      ) : (
+        <div className="flex h-24 items-center justify-center rounded-md border border-dashed border-[var(--rnp-line)] text-[11px] text-[var(--rnp-fg-muted)]">
+          Upload an image to drag the focal point.
+        </div>
+      )}
+      <div className="flex flex-wrap items-center gap-1.5">
+        {presets.map((opt) => {
+          const active = matchedPreset?.value === opt.value
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onChange(opt.value)}
+              className={
+                'rounded-full border px-2.5 py-1 text-[11px] font-semibold transition ' +
+                (active
+                  ? 'border-[var(--rnp-accent)] bg-[var(--rnp-accent)] text-[var(--rnp-accent-ink)]'
+                  : 'border-[var(--rnp-chip-line)] bg-[var(--rnp-chip-bg)] text-[var(--rnp-fg)] hover:-translate-y-0.5')
+              }
+            >
+              {opt.label}
+            </button>
+          )
+        })}
+        <span className="ml-auto font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--rnp-fg-muted)]">
+          {currentValue}
+        </span>
+      </div>
+    </div>
+  )
 }
 
 export default function TemplateEditor({
@@ -102,6 +244,18 @@ export default function TemplateEditor({
                   </div>
                 </div>
               </div>
+            )
+          }
+
+          if (field.type === 'crop') {
+            return (
+              <CropField
+                key={field.key}
+                field={field}
+                value={value}
+                src={field.imageKey ? values[field.imageKey] ?? '' : ''}
+                onChange={(v) => onChange(field.key, v)}
+              />
             )
           }
 

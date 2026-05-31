@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react'
 import type { ThemeTokens } from '../system/tokens'
 
-export type FieldType = 'text' | 'textarea' | 'select' | 'image'
+export type FieldType = 'text' | 'textarea' | 'select' | 'image' | 'crop'
 
 export interface TemplateField {
   key: string
@@ -9,6 +9,9 @@ export interface TemplateField {
   type: FieldType
   placeholder?: string
   options?: Array<{ value: string; label: string }>
+  // For 'crop' fields: the values key holding the source image so the
+  // editor can render a preview and let the user drag the focal point.
+  imageKey?: string
 }
 
 export type AspectRatio = '1:1' | '16:9' | '4:5' | '9:16' | '3:2' | 'custom'
