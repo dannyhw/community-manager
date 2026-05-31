@@ -4,7 +4,7 @@ import type { ThemeTokens } from "../system/tokens";
 import { eventDefaults, eventFields } from "./_eventFields";
 import type { GraphicTemplate, TemplateValues } from "./types";
 
-type Variant = "square" | "portrait" | "landscape";
+type Variant = "square" | "portrait" | "landscape" | "story";
 
 function SpeakerPhoto({
   src,
@@ -86,8 +86,8 @@ function BannerSpeaker({
   variant: Variant;
 }) {
   const isLandscape = variant === "landscape";
-  const isSquare = variant === "square";
   const isPortrait = variant === "portrait";
+  const isStory = variant === "story";
   // Landscape places photo and content side-by-side; the others stack them.
   const layout: "split" | "stacked" = isLandscape ? "split" : "stacked";
 
@@ -115,6 +115,14 @@ function BannerSpeaker({
     baseTitle = 104;
     nameSize = 60;
     contentPadding = "40px 56px 44px";
+  } else if (isStory) {
+    width = 1080;
+    height = 1920;
+    photoWidth = 1080;
+    photoHeight = 1280;
+    baseTitle = 108;
+    nameSize = 64;
+    contentPadding = "48px 56px 56px";
   } else {
     width = 1080;
     height = 1080;
@@ -408,5 +416,20 @@ export const bannerSpeakerLandscape: GraphicTemplate = {
   defaults: eventDefaults,
   Component: ({ values, t }) => (
     <BannerSpeaker values={values} t={t} variant="landscape" />
+  ),
+};
+
+export const bannerSpeakerStory: GraphicTemplate = {
+  id: "banner-speaker-story",
+  name: "Speaker Spotlight · 1080×1920",
+  description:
+    "Vertical 9:16 spotlight — large speaker photo on top, talk title and speaker name below. For IG/TikTok stories.",
+  aspect: "9:16",
+  width: 1080,
+  height: 1920,
+  fields: speakerFields,
+  defaults: eventDefaults,
+  Component: ({ values, t }) => (
+    <BannerSpeaker values={values} t={t} variant="story" />
   ),
 };

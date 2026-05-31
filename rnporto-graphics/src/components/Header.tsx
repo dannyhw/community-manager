@@ -34,6 +34,13 @@ export default function Header() {
           >
             Gallery
           </Link>
+          <Link
+            to="/speakers"
+            className="nav-link"
+            activeProps={{ className: 'nav-link is-active' }}
+          >
+            Speakers
+          </Link>
         </div>
 
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2">

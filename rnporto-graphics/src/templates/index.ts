@@ -5,6 +5,7 @@ import {
   bannerSpeakerLandscape,
   bannerSpeakerPortrait,
   bannerSpeakerSquare,
+  bannerSpeakerStory,
 } from './BannerSpeaker'
 import {
   bannerSpeakers3,
@@ -28,6 +29,7 @@ export const templates: Array<GraphicTemplate> = [
   bannerStory,
   bannerSpeakerSquare,
   bannerSpeakerPortrait,
+  bannerSpeakerStory,
   bannerSpeakerLandscape,
   bannerSpeakers3,
   bannerSpeakers3Square,

@@ -9,12 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SpeakersRouteImport } from './routes/speakers'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
+import { Route as ApiSpeakersIdPhotoRouteImport } from './routes/api/speakers/$id/photo'
 import { Route as ApiGalleryIdThumbRouteImport } from './routes/api/gallery/$id/thumb'
 import { Route as ApiGalleryIdAssetKeyRouteImport } from './routes/api/gallery/$id/asset/$key'
 
+const SpeakersRoute = SpeakersRouteImport.update({
+  id: '/speakers',
+  path: '/speakers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GalleryRoute = GalleryRouteImport.update({
   id: '/gallery',
   path: '/gallery',
@@ -28,6 +35,11 @@ const IndexRoute = IndexRouteImport.update({
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
   id: '/demo/tanstack-query',
   path: '/demo/tanstack-query',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSpeakersIdPhotoRoute = ApiSpeakersIdPhotoRouteImport.update({
+  id: '/api/speakers/$id/photo',
+  path: '/api/speakers/$id/photo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGalleryIdThumbRoute = ApiGalleryIdThumbRouteImport.update({
@@ -44,23 +56,29 @@ const ApiGalleryIdAssetKeyRoute = ApiGalleryIdAssetKeyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/gallery': typeof GalleryRoute
+  '/speakers': typeof SpeakersRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/api/gallery/$id/thumb': typeof ApiGalleryIdThumbRoute
+  '/api/speakers/$id/photo': typeof ApiSpeakersIdPhotoRoute
   '/api/gallery/$id/asset/$key': typeof ApiGalleryIdAssetKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/gallery': typeof GalleryRoute
+  '/speakers': typeof SpeakersRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/api/gallery/$id/thumb': typeof ApiGalleryIdThumbRoute
+  '/api/speakers/$id/photo': typeof ApiSpeakersIdPhotoRoute
   '/api/gallery/$id/asset/$key': typeof ApiGalleryIdAssetKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/gallery': typeof GalleryRoute
+  '/speakers': typeof SpeakersRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/api/gallery/$id/thumb': typeof ApiGalleryIdThumbRoute
+  '/api/speakers/$id/photo': typeof ApiSpeakersIdPhotoRoute
   '/api/gallery/$id/asset/$key': typeof ApiGalleryIdAssetKeyRoute
 }
 export interface FileRouteTypes {
@@ -68,35 +86,50 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/gallery'
+    | '/speakers'
     | '/demo/tanstack-query'
     | '/api/gallery/$id/thumb'
+    | '/api/speakers/$id/photo'
     | '/api/gallery/$id/asset/$key'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/gallery'
+    | '/speakers'
     | '/demo/tanstack-query'
     | '/api/gallery/$id/thumb'
+    | '/api/speakers/$id/photo'
     | '/api/gallery/$id/asset/$key'
   id:
     | '__root__'
     | '/'
     | '/gallery'
+    | '/speakers'
     | '/demo/tanstack-query'
     | '/api/gallery/$id/thumb'
+    | '/api/speakers/$id/photo'
     | '/api/gallery/$id/asset/$key'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   GalleryRoute: typeof GalleryRoute
+  SpeakersRoute: typeof SpeakersRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   ApiGalleryIdThumbRoute: typeof ApiGalleryIdThumbRoute
+  ApiSpeakersIdPhotoRoute: typeof ApiSpeakersIdPhotoRoute
   ApiGalleryIdAssetKeyRoute: typeof ApiGalleryIdAssetKeyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/speakers': {
+      id: '/speakers'
+      path: '/speakers'
+      fullPath: '/speakers'
+      preLoaderRoute: typeof SpeakersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gallery': {
       id: '/gallery'
       path: '/gallery'
@@ -116,6 +149,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/tanstack-query'
       fullPath: '/demo/tanstack-query'
       preLoaderRoute: typeof DemoTanstackQueryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/speakers/$id/photo': {
+      id: '/api/speakers/$id/photo'
+      path: '/api/speakers/$id/photo'
+      fullPath: '/api/speakers/$id/photo'
+      preLoaderRoute: typeof ApiSpeakersIdPhotoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/gallery/$id/thumb': {
@@ -138,8 +178,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   GalleryRoute: GalleryRoute,
+  SpeakersRoute: SpeakersRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   ApiGalleryIdThumbRoute: ApiGalleryIdThumbRoute,
+  ApiSpeakersIdPhotoRoute: ApiSpeakersIdPhotoRoute,
   ApiGalleryIdAssetKeyRoute: ApiGalleryIdAssetKeyRoute,
 }
 export const routeTree = rootRouteImport

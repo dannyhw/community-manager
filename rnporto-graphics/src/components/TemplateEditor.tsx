@@ -4,12 +4,100 @@ import type {
   TemplateField,
   TemplateValues,
 } from '../templates/types'
+import type { Suggestions } from '../lib/suggestions'
+import { buildApplyPatch, slotOfField } from '../lib/speakers'
+import SpeakerPicker from './SpeakerPicker'
 
 interface Props {
   template: GraphicTemplate
   values: TemplateValues
   onChange: (key: string, value: string) => void
   onReset: () => void
+  suggestions?: Suggestions
+}
+
+const MAX_TEXT_SUGGESTIONS = 8
+const MAX_IMAGE_SUGGESTIONS = 8
+
+function isImageValue(v: string): boolean {
+  return v.startsWith('data:image') || v.startsWith('/api/gallery/')
+}
+
+function truncate(s: string, max: number): string {
+  if (s.length <= max) return s
+  return s.slice(0, max - 1).trimEnd() + '…'
+}
+
+function TextSuggestions({
+  options,
+  currentValue,
+  onPick,
+}: {
+  options: Array<string>
+  currentValue: string
+  onPick: (value: string) => void
+}) {
+  const filtered = options
+    .filter((v) => v && !isImageValue(v) && v !== currentValue)
+    .slice(0, MAX_TEXT_SUGGESTIONS)
+  if (filtered.length === 0) return null
+  return (
+    <div className="mt-1 flex flex-wrap items-center gap-1.5">
+      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--rnp-fg-muted)]">
+        From gallery
+      </span>
+      {filtered.map((opt) => (
+        <button
+          key={opt}
+          type="button"
+          onClick={() => onPick(opt)}
+          title={opt}
+          className="max-w-[220px] truncate rounded-full border border-[var(--rnp-chip-line)] bg-[var(--rnp-chip-bg)] px-2.5 py-1 text-[11px] font-medium text-[var(--rnp-fg)] transition hover:-translate-y-0.5"
+        >
+          {truncate(opt, 36)}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function ImageSuggestions({
+  options,
+  currentValue,
+  onPick,
+}: {
+  options: Array<string>
+  currentValue: string
+  onPick: (value: string) => void
+}) {
+  const filtered = options
+    .filter((v) => v && isImageValue(v) && v !== currentValue)
+    .slice(0, MAX_IMAGE_SUGGESTIONS)
+  if (filtered.length === 0) return null
+  return (
+    <div className="mt-1 flex flex-col gap-1">
+      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--rnp-fg-muted)]">
+        From gallery
+      </span>
+      <div className="flex flex-wrap items-center gap-2">
+        {filtered.map((src) => (
+          <button
+            key={src}
+            type="button"
+            onClick={() => onPick(src)}
+            title="Use this photo"
+            className="h-12 w-12 overflow-hidden rounded-md border border-[var(--rnp-chip-line)] bg-[var(--rnp-chip-bg)] transition hover:-translate-y-0.5"
+          >
+            <img
+              src={src}
+              alt=""
+              className="block h-full w-full object-cover"
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 // Parse a CSS `object-position`-style value into x/y percentages. Accepts
@@ -154,6 +242,7 @@ export default function TemplateEditor({
   values,
   onChange,
   onReset,
+  suggestions,
 }: Props) {
   return (
     <div className="island-shell flex flex-col gap-4 rounded-2xl p-5">
@@ -180,6 +269,7 @@ export default function TemplateEditor({
         {template.fields.map((field) => {
           const id = `field-${template.id}-${field.key}`
           const value = values[field.key] ?? ''
+          const fieldSuggestions = suggestions?.[field.key] ?? []
           if (field.type === 'textarea') {
             return (
               <label key={field.key} htmlFor={id} className="flex flex-col gap-1">
@@ -193,6 +283,11 @@ export default function TemplateEditor({
                   onChange={(e) => onChange(field.key, e.target.value)}
                   placeholder={field.placeholder}
                   className="w-full rounded-md border border-[var(--rnp-line)] bg-[var(--rnp-bg-elevated)] p-3 text-sm text-[var(--rnp-fg)] placeholder:text-[var(--rnp-fg-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--rnp-accent)]"
+                />
+                <TextSuggestions
+                  options={fieldSuggestions}
+                  currentValue={value}
+                  onPick={(v) => onChange(field.key, v)}
                 />
               </label>
             )
@@ -243,6 +338,11 @@ export default function TemplateEditor({
                     ) : null}
                   </div>
                 </div>
+                <ImageSuggestions
+                  options={fieldSuggestions}
+                  currentValue={value}
+                  onPick={(v) => onChange(field.key, v)}
+                />
               </div>
             )
           }
@@ -281,10 +381,30 @@ export default function TemplateEditor({
             )
           }
 
+          // Speaker slot name fields get a "Pick speaker…" button beside
+          // their label that applies a saved speaker record across the
+          // whole slot (name, role, image, plus talkTitle when present).
+          const slot = slotOfField(field.key)
+          const isSpeakerNameField =
+            slot !== null && field.key === `speaker${slot}Name`
+          const slotLabel = isSpeakerNameField
+            ? slot
+              ? `Speaker ${slot}`
+              : 'Speaker'
+            : ''
           return (
             <label key={field.key} htmlFor={id} className="flex flex-col gap-1">
-              <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--rnp-fg-soft)]">
-                {field.label}
+              <span className="flex items-center justify-between gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--rnp-fg-soft)]">
+                <span>{field.label}</span>
+                {isSpeakerNameField ? (
+                  <SpeakerPicker
+                    slotLabel={slotLabel}
+                    onPick={(speaker) => {
+                      const patch = buildApplyPatch(speaker, slot ?? '', template)
+                      for (const [k, v] of Object.entries(patch)) onChange(k, v)
+                    }}
+                  />
+                ) : null}
               </span>
               <input
                 id={id}
@@ -293,6 +413,11 @@ export default function TemplateEditor({
                 onChange={(e) => onChange(field.key, e.target.value)}
                 placeholder={field.placeholder}
                 className="w-full rounded-md border border-[var(--rnp-line)] bg-[var(--rnp-bg-elevated)] p-3 text-sm text-[var(--rnp-fg)] placeholder:text-[var(--rnp-fg-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--rnp-accent)]"
+              />
+              <TextSuggestions
+                options={fieldSuggestions}
+                currentValue={value}
+                onPick={(v) => onChange(field.key, v)}
               />
             </label>
           )
