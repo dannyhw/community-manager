@@ -131,6 +131,12 @@ export const eventFields = {
     type: 'textarea',
     placeholder: 'Reanimated 4 in production',
   } satisfies TemplateField,
+  talksTheme: {
+    key: 'talksTheme',
+    label: 'Talks theme',
+    type: 'text',
+    placeholder: 'AI Workflows',
+  } satisfies TemplateField,
   speaker1Image: {
     key: 'speaker1Image',
     label: 'Speaker 1 photo',
@@ -245,6 +251,7 @@ export const eventDefaults: TemplateValues = {
   speakerName: 'Joana Almeida',
   speakerRole: 'Staff Engineer · Reanimated',
   talkTitle: 'Reanimated 4 in production',
+  talksTheme: 'AI Workflows',
   speaker1Image: '',
   speaker1ImageCrop: '50% 20%',
   speaker1Name: 'Joana Almeida',
