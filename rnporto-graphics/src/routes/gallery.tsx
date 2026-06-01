@@ -76,7 +76,6 @@ function GalleryPage() {
         <ul className="mt-6 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
           {entries.map((entry) => {
             const template = templatesById[entry.templateId]
-            const aspect = `${entry.width} / ${entry.height}`
             const isPending = pendingId === entry.id
             return (
               <li
@@ -91,7 +90,7 @@ function GalleryPage() {
                 >
                   <div
                     style={{
-                      aspectRatio: aspect,
+                      aspectRatio: '16 / 10',
                       background: 'var(--rnp-bg-elevated)',
                     }}
                   >
@@ -99,7 +98,7 @@ function GalleryPage() {
                       src={entry.thumbUrl}
                       alt={entry.name}
                       loading="lazy"
-                      className="block h-full w-full object-cover"
+                      className="block h-full w-full object-contain"
                       draggable={false}
                     />
                   </div>

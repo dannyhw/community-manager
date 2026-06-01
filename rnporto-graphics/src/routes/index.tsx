@@ -6,7 +6,7 @@ import TemplateEditor from '../components/TemplateEditor'
 import TemplatePicker from '../components/TemplatePicker'
 import ThemeControls from '../components/ThemeControls'
 import { resolveTheme, type ThemeMode } from '../system/tokens'
-import { templates, templatesById } from '../templates'
+import { templateGroups, templates, templatesById } from '../templates'
 import type { TemplateValues } from '../templates/types'
 import { getGraphic, saveGraphic } from '../server/gallery'
 
@@ -407,7 +407,7 @@ function GraphicsStudio() {
       <section className="flex flex-col gap-3">
         <p className="island-kicker">Templates</p>
         <TemplatePicker
-          templates={templates}
+          groups={templateGroups}
           activeId={activeId}
           onSelect={setActiveId}
         />
