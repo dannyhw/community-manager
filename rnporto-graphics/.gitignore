@@ -12,6 +12,3 @@ dist-ssr
 __unconfig*
 todos.json
 
-# Saved gallery entries — keep the directory, ignore the contents.
-data/gallery/*
-!data/gallery/.gitkeep

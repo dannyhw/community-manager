@@ -1,0 +1,33 @@
+{
+  "id": "mp5gt70r-iwusgr",
+  "templateId": "banner-speaker-square",
+  "name": "Xavier · 1080×1080 · react-native",
+  "values": {
+    "editionMark": "02",
+    "editionTag": "Edition #02 · AI Native",
+    "hashTag": "# RNP–002",
+    "brand": "React Native Porto",
+    "titleLine1": "React Native.",
+    "titleLine2": "AI Native.",
+    "body": "An evening on AI-native workflows for React Native — with the people building it in Portugal. Pizza and Super Bock on us.",
+    "date": "Thu 11 Jun",
+    "doors": "18:00",
+    "venue": "Porto Innovation Hub",
+    "pill": "Free · RSVP open",
+    "url": "meetup.com/react-native-porto",
+    "hostLine1": "Porto Innovation",
+    "hostLine2": "Hub",
+    "barcodeCaption": "RNP 002 · 11 06 26",
+    "speakerImage": "/api/gallery/mp5gt70r-iwusgr/asset/speakerImage",
+    "speakerImageCrop": "center 50%",
+    "speakerName": "Xavier Costa",
+    "speakerRole": "Frontend Engineer @ Uphold",
+    "talkTitle": "Stop Profiling, Start Prompting.\nResearch Loops with MCP"
+  },
+  "mode": "light",
+  "accent": "#2B6CA8",
+  "width": 1080,
+  "height": 1080,
+  "createdAt": "2026-05-14T12:28:55.371Z",
+  "updatedAt": "2026-05-14T12:28:55.371Z"
+}

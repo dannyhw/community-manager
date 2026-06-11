@@ -17,6 +17,11 @@ import {
   bannerSpeakers3HeroLandscape,
   bannerSpeakers3HeroSquare,
 } from './BannerSpeakers3Hero'
+import {
+  bannerSpeakers3Triptych,
+  bannerSpeakers3TriptychLandscape,
+  bannerSpeakers3TriptychSquare,
+} from './BannerSpeakers3Triptych'
 import { bannerStory } from './BannerStory'
 import { bannerTicket, bannerTicketAI } from './BannerTicket'
 import { bannerTicketAISquare } from './BannerTicketAISquare'
@@ -66,6 +71,9 @@ export const templateGroups: Array<TemplateGroup> = [
       bannerSpeakers3Hero,
       bannerSpeakers3HeroSquare,
       bannerSpeakers3HeroLandscape,
+      bannerSpeakers3Triptych,
+      bannerSpeakers3TriptychSquare,
+      bannerSpeakers3TriptychLandscape,
     ],
   },
   {
